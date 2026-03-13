@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -eu
+
+PHP_VERSION="${PHP_VERSION:-8.4}"
+INSTALL_OTEL_EXTENSION="${INSTALL_OTEL_EXTENSION:-true}"
+IMAGE_NAME="appsignal-php-${PHP_VERSION}-otel-${INSTALL_OTEL_EXTENSION}"
+
+docker build \
+  --build-arg PHP_VERSION="$PHP_VERSION" \
+  --build-arg INSTALL_OTEL_EXTENSION="$INSTALL_OTEL_EXTENSION" \
+  -t "$IMAGE_NAME" .
+
+docker run --rm "$IMAGE_NAME" composer "$@"

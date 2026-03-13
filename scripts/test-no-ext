@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -eu
+
+INSTALL_OTEL_EXTENSION=false "$(dirname "$0")/call_composer" test:no-ext

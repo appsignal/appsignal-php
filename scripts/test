@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -eu
+
+"$(dirname "$0")/call_composer" test

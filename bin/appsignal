@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PACKAGE_DIR="${APPSIGNAL_PACKAGE_DIR:-$(dirname "$SCRIPT_DIR")}"
+
+# Package is located in vendor/appsignal/appsignal-php directory
+# and the project root is three levels up from the package directory.
+PROJECT_ROOT="${APPSIGNAL_PROJECT_ROOT:-$(dirname "$(dirname "$(dirname "$PACKAGE_DIR")")")}"
+
+case "${1:-}" in
+	init)
+		TARGET_DIR="$PROJECT_ROOT/config"
+		TEMPLATE="$PACKAGE_DIR/config-stubs/appsignal.php"
+		# Detect framework
+		if [ -f "$PROJECT_ROOT/symfony.lock" ]; then
+			TARGET_DIR="$TARGET_DIR/packages"
+		elif [ -f "$PROJECT_ROOT/artisan" ] && [ -d "$PROJECT_ROOT/bootstrap" ]; then
+			TEMPLATE="$PACKAGE_DIR/config-stubs/appsignal.laravel.php"
+		fi
+
+		TARGET="$TARGET_DIR/appsignal.php"
+
+		if [ -f "$TARGET" ]; then
+			echo "Config file already exists at $TARGET"
+			exit 0
+		fi
+
+		mkdir -p "$TARGET_DIR"
+		cp "$TEMPLATE" "$TARGET"
+		echo "AppSignal config file created at $TARGET"
+		;;
+	*)
+		echo "Usage: appsignal <command>"
+		echo ""
+		echo "Commands:"
+		echo "  init    Scaffold the AppSignal config file for your application"
+		;;
+esac

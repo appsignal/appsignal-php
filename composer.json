@@ -1,0 +1,55 @@
+{
+    "name": "appsignal/appsignal-php",
+    "description": "AppSignal for PHP",
+    "version": "0.1.0",
+    "scripts": {
+	"cs": "php-cs-fixer check --diff",
+	"cs:fix": "php-cs-fixer fix",
+	"cs:ci": "php-cs-fixer fix --dry-run --diff",
+	"lint": "phpstan analyse --memory-limit=256M",
+	"test": "phpunit --exclude-group no-extension",
+	"test:no-ext": "phpunit --group no-extension"
+    },
+    "require": {
+	"php": ">=8.4.0",
+	"open-telemetry/exporter-otlp": "*",
+	"open-telemetry/opentelemetry-logger-monolog": "*",
+	"open-telemetry/sdk": "*",
+	"vlucas/phpdotenv": "*"
+    },
+     "require-dev": {
+	"phpunit/phpunit": "^13.0",
+        "phpstan/phpstan": "^2.1",
+        "symfony/routing": "^8.0",
+        "symfony/http-kernel": "^8.0",
+        "mockery/mockery": "^1.6",
+        "friendsofphp/php-cs-fixer": "^3.94"
+    },
+    "autoload": {
+	"psr-4": {
+	    "AppSignal\\": "src"
+	},
+	"files": [
+	    "_autoload.php"
+	]
+    },
+    "autoload-dev": {
+	"psr-4": {
+	    "AppSignal\\Tests\\": "tests/"
+	}
+    },
+    "extra": {
+	"laravel": {
+	    "providers": [
+		"AppSignal\\Integrations\\Laravel\\AppSignalServiceProvider"
+	    ]
+	}
+    },
+    "bin": ["bin/appsignal"],
+    "config": {
+	"allow-plugins": {
+	    "php-http/discovery": false,
+	    "tbachert/spi": false
+	}
+    }
+}

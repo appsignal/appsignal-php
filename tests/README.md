@@ -1,0 +1,1 @@
+The phpactor (or other static analysis tool) warns about `once` or `with` being undefined methods in chains like `$spy->shouldHaveReceived('some_method')->once()->with('a_param')` is a known typehint issue in [`mockery/mockery`](https://github.com/mockery/mockery/issues/1421).

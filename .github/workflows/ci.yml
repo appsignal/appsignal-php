@@ -1,0 +1,60 @@
+name: PHP package CI
+"on":
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  schedule:
+    - cron: "0 0 * * 1-5"
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: "${{ !contains(github.ref, 'main') }}"
+env:
+  RUNNING_IN_CI: "true"
+  PHP_ENV: test
+jobs:
+  test:
+    name: "PHP ${{ matrix.php }} - ${{ matrix.name }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: "8.4"
+            otel: "true"
+            name: with opentelemetry extension
+            test_cmd: "test"
+          - php: "8.4"
+            otel: "false"
+            name: without opentelemetry extension
+            test_cmd: "test:no-ext"
+          - php: "8.5"
+            otel: "true"
+            name: with opentelemetry extension
+            test_cmd: "test"
+          - php: "8.5"
+            otel: "false"
+            name: without opentelemetry extension
+            test_cmd: "test:no-ext"
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Build container
+        run: >
+          docker build
+          --build-arg PHP_VERSION=${{ matrix.php }}
+          --build-arg INSTALL_OTEL_EXTENSION=${{ matrix.otel }}
+          -t test-image .
+      - name: Lint PHP
+        if: matrix.otel == 'true'
+        run: docker run test-image composer lint
+      - name: Check code style
+        if: matrix.otel == 'true'
+        run: docker run test-image composer cs:ci
+      - name: Run tests
+        run: docker run test-image composer ${{ matrix.test_cmd }}
