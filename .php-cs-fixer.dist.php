@@ -7,11 +7,11 @@ use PhpCsFixer\Finder;
 
 $finder = Finder::create()
     ->in(__DIR__ . '/src')
-    ->in(__DIR__ . '/tests')
+    ->in(__DIR__ . '/tests/Unit')
     ->in(__DIR__ . '/config-stubs')
     ->exclude('vendor');
 
-return (new Config())
+return new Config()
     ->setRiskyAllowed(false)
     ->setRules([
         '@auto' => true,

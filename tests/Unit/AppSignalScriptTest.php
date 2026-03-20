@@ -1,10 +1,10 @@
 <?php
 
-namespace AppSignal\Tests;
+namespace AppSignal\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 
-class AppsignalScriptTest extends TestCase
+class AppSignalScriptTest extends TestCase
 {
     protected static string $packageDir;
     protected static string $tempDir;
@@ -121,7 +121,7 @@ class AppsignalScriptTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        self::$packageDir = dirname(__DIR__);
+        self::$packageDir = dirname(dirname(__DIR__));
         self::$tempDir = sys_get_temp_dir() . '/appsignal_test_' . uniqid();
         mkdir(self::$tempDir, recursive: true);
     }

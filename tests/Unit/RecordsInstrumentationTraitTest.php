@@ -1,6 +1,6 @@
 <?php
 
-namespace AppSignal\Tests;
+namespace AppSignal\Tests\Unit;
 
 use AppSignal\ActiveSpan;
 use AppSignal\RecordsInstrumentation;

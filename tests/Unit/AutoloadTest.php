@@ -1,6 +1,6 @@
 <?php
 
-namespace AppSignal\Tests;
+namespace AppSignal\Tests\Unit;
 
 use AppSignal\AppSignal;
 use Mockery;
@@ -34,7 +34,7 @@ class AutoloadTest extends TestCase
         AppSignal::setInstance($spy);
 
         $warning = $this->callAndCaptureWarnings(function () {
-            require __DIR__ . '/../_autoload.php';
+            require __DIR__ . '/../../_autoload.php';
         });
 
         $this->assertEquals('The "opentelemetry" extension must be loaded to use AppSignal', $warning);
@@ -49,7 +49,7 @@ class AutoloadTest extends TestCase
         $spy = Mockery::spy(AppSignal::class);
         AppSignal::setInstance($spy);
 
-        require __DIR__ . '/../_autoload.php';
+        require __DIR__ . '/../../_autoload.php';
 
         $spy->shouldHaveReceived('initialize')
             ->once(); // @phpstan-ignore method.notFound

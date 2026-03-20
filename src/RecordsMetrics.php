@@ -6,6 +6,9 @@ use OpenTelemetry\API\Globals;
 
 trait RecordsMetrics
 {
+    /**
+     * @param array<string, mixed> $tags
+     */
     public static function setGauge(string $name, mixed $value, ?array $tags = []): void
     {
         $meterProvider = Globals::meterProvider();
@@ -16,6 +19,9 @@ trait RecordsMetrics
         $gauge->record($value, $tags);
     }
 
+    /**
+     * @param array<string, mixed> $tags
+     */
     public static function addDistributionValue(string $name, mixed $value, ?array $tags = []): void
     {
         $meterProvider = Globals::meterProvider();
@@ -26,6 +32,9 @@ trait RecordsMetrics
         $histogram->record($value, $tags);
     }
 
+    /**
+     * @param array<string, mixed> $tags
+     */
     public static function incrementCounter(string $name, mixed $value, ?array $tags = []): void
     {
         $meterProvider = Globals::meterProvider();
