@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install git unzip -y
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 ENV PATH="$PATH:/usr/local/bin"
 
-# Copy PHP integration so it can be used as a path repository
+# Copy AppSignal PHP package so it can be used as a path repository
 COPY composer.json /package/composer.json
 COPY src/ /package/src/
 COPY _autoload.php /package/_autoload.php
@@ -27,9 +27,9 @@ RUN composer update --no-interaction --prefer-dist
 # Copy the rest of the app
 COPY tests/Integration/vanilla/ .
 
-# Allow _autoload.php to initialize AppSignal in CLI mode.
-# This must be a process-level env var (not phpunit.xml <env>) because
-# Composer autoload files run before PHPUnit processes its XML config.
+# Composer autoloads files before PHPUnit parses XML config.
+# Pass ENV variable to allow _autoload.php to initialize AppSignal
+# in CLI mode for this test run.
 ENV _APPSIGNAL_TEST=true
 
 CMD ["vendor/bin/phpunit"]

@@ -31,9 +31,9 @@ COPY tests/Integration/symfony/ .
 # Clear cache now that the full app is present
 RUN bin/console cache:clear
 
-# Allow _autoload.php to initialize AppSignal in CLI mode
-# This is here because Composer autoload files run
-# before PHPUnit parses XML config
+# Composer autoloads files before PHPUnit parses XML config.
+# Pass ENV variable to allow _autoload.php to initialize AppSignal
+# in CLI mode for this test run.
 ENV _APPSIGNAL_TEST=true
 
 CMD ["vendor/bin/phpunit"]

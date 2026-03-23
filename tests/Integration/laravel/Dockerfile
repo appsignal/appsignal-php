@@ -30,9 +30,9 @@ COPY tests/Integration/laravel/ .
 # Run post-install scripts now that the full app is present
 RUN composer run-script post-update-cmd --no-interaction
 
-# Allow _autoload.php to initialize AppSignal in CLI mode.
-# This must be a process-level env var (not phpunit.xml <env>) because
-# Composer autoload files run before PHPUnit processes its XML config.
+# Composer autoloads files before PHPUnit parses XML config.
+# Pass ENV variable to allow _autoload.php to initialize AppSignal
+# in CLI mode for this test run.
 ENV _APPSIGNAL_TEST=true
 
 CMD ["vendor/bin/phpunit"]

@@ -58,3 +58,23 @@ jobs:
         run: docker run test-image composer cs:ci
       - name: Run tests
         run: docker run test-image composer ${{ matrix.test_cmd }}
+  integration-test:
+    name: "PHP ${{ matrix.php }} - ${{ matrix.framework }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php:
+          - "8.4"
+          - "8.5"
+        framework:
+          - laravel
+          - symfony
+          - vanilla
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Run integration tests
+        run: scripts/test-integration-${{ matrix.framework }}
+        env:
+          PHP_VERSION: "${{ matrix.php }}"
