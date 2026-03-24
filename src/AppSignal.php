@@ -72,7 +72,7 @@ class AppSignal
             return new Symfony($basePath);
         }
         if ($framework == 'vanilla') {
-            return new Vanilla();
+            return new Vanilla($basePath);
         }
         return null;
     }
@@ -147,6 +147,12 @@ class AppSignal
         $this->applyGlobalPatches($config);
 
         $environment->applyPatches();
+
+        if (isset($_ENV['_APPSIGNAL_TEST'])) {
+            $this->initialized = true;
+
+            return;
+        }
 
         $this->initializeOpenTelemetry($config);
     }

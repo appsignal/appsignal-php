@@ -2,8 +2,8 @@
 
 use AppSignal\AppSignal;
 
-// Skip for CLI unless it's artisan
-if (PHP_SAPI === 'cli' && !isset($_ENV['LARAVEL_ARTISAN'])) {
+// Skip for CLI unless it's artisan or integration tests
+if (PHP_SAPI === 'cli' && !isset($_ENV['LARAVEL_ARTISAN']) && !isset($_ENV['_APPSIGNAL_TEST'])) {
 	return;
 }
 

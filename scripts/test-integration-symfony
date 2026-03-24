@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -eu
+
+PHP_VERSION="${PHP_VERSION:-8.4}"
+IMAGE_NAME="appsignal-php-integration-symfony-${PHP_VERSION}"
+
+docker build \
+  --build-arg PHP_VERSION="$PHP_VERSION" \
+  -f tests/Integration/symfony/Dockerfile \
+  -t "$IMAGE_NAME" .
+
+docker run --rm "$IMAGE_NAME"
