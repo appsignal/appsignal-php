@@ -2,27 +2,106 @@
 
 The AppSignal for PHP library.
 
-- [AppSignal.com website][appsignal]
-- [Documentation][docs]
-- [Support][contact]
-
 ![Tests](https://github.com/appsignal/appsignal-php/actions/workflows/ci.yml/badge.svg)
 
 ## Installation
 
-Please follow the [installation guide](https://docs.appsignal.com/php/installation) in our documentation. We try to automatically instrument as many packages as possible, but may not always be able to. Make to sure follow any [instructions to add manual instrumentation](https://docs.appsignal.com/php/integrations).
+Install the latest version of AppSignal with:
+
+```bash
+composer require appsignal/appsignal-php`
+```
+
+> [!IMPORTANT]
+> This package depends on `opentelemetry` PHP extension. Make sure you have it installed.
+
+## Installing `opentelemetry` PHP extension
+
+First, make sure the build dependencies required to install the OpenTelemetry PHP extension are installed.
+
+On Ubuntu/Debian:
+```bash
+sudo apt-get install gcc make autoconf
+```
+or macOS:
+```bash
+brew install gcc make autoconf
+```
+
+Then, install the OpenTelemetry PHP extension using PECL:
+```bash
+pecl install opentelemetry
+```
+
+Finally, enable the extension in `php.ini`
+```ini
+[opentelemetry]
+extension=opentelemetry.so
+```
+
+For more ways to install `opentelemetry` extension (pie, pickle, Docker), see the [Installing the OpenTelemetry extension](https://docs.appsignal.com/php/installation.html#install-the-opentelemetry-php-extension) section in AppSignal Docs.
+
+## Basic usage
+
+> [!TIP]
+> For Laravel application auto-instrumentation install `open-telemetry/opentelemetry-auto-laravel` package.
+> For Symfony application auto-instrumentation install `open-telemetry/opentelemetry-auto-symfony` package.
+
+```php
+use AppSignal\AppSignal;
+
+// add a custom instrumentation span to the current trace
+AppSignal::instrument('some_event', fn() => sleep(1));
+
+// add a custom instrumentation span to the current trace with data
+AppSignal::instrument('some_event', ['region' => 'eu'], fn() => sleep(1));
+
+// customize the name of the trace
+AppSignal::setAction('my action'),
+
+// add custom data to current span
+AppSignal::addCustomData([
+    'string-attribute' => 'abcdef',
+    'int-attribute' => 1234,
+    'bool-attribute' => true,
+]);
+
+// add tags to current span
+AppSignal::addTags([
+    'string-tag' => 'some value',
+    'integer-tag' => 1234,
+    'bool-tag' => true,
+]);
+
+// report a handled exception
+AppSignal::reportError($exception);
+
+// add metrics
+AppSignal::setGauge('my_gauge', 12);
+AppSignal::setGauge('my_gauge_with_attributes', 13, ['region' => 'eu']);
+
+AppSignal::addDistributionValue('memory_usage', 50);
+AppSignal::addDistributionValue('memory_usage', 70);
+
+AppSignal::addDistributionValue('with_attributes', 10, ['region' => 'eu']);
+AppSignal::addDistributionValue('with_attributes', 20, ['region' => 'eu']);
+AppSignal::addDistributionValue('with_attributes', 30, ['region' => 'eu']);
+
+AppSignal::incrementCounter('my_counter', 1);
+AppSignal::incrementCounter('my_counter', 3, ['region' => 'eu']);
+```
 
 ## Development
 
 ### Installation
 
-This package uses [Composer](https://getcomposer.org) as the dependency manager. First, make sure you have Composer installed. Then install the dependencies and prepare the project for development:
+This package uses [Composer](https://getcomposer.org) as the dependency manager. Once you have Composer installed, install all dependencies:
 
 ```bash
 composer install
 ```
 
-If you'd rather install PHP and Composer using Docker, there's no need to run a separate `composer install` command. You can run any Composer command in a Docker container using the `scripts/call_composer` command:
+If you'd rather not install PHP and Composer locally, you can run Composer commands in a Docker container using the `scripts/call_composer` command:
 
 ```bash
 scripts/call_composer any_composer_command_or_script
@@ -30,7 +109,7 @@ scripts/call_composer any_composer_command_or_script
 
 ### Testing
 
-The tests for this library use [PHPUnit](https://phpunit.de/index.html) as the test runner and framework. Once you've installed the dependencies, run the following command in the root of this repository to run all tests:
+Run the following command in the root of this repository to run all [PHPUnit](https://phpunit.de/index.html) tests:
 
 ```bash
 composer test
@@ -82,7 +161,7 @@ composer cs:fix                # fix
 
 # or with Docker
 scripts/call_composer cs       # check
-scripts/call_composer cs:fix   # check
+scripts/call_composer cs:fix   # fix
 ```
 
 ## Contributing
@@ -97,7 +176,7 @@ Also, we would be very happy to send you Stroopwafels. Have look at everyone we 
 
 [Contact us][contact] and speak directly with the engineers working on AppSignal. They will help you get set up, tweak your code and make sure you get the most out of using AppSignal.
 
-[appsignal]: https://www.appsignal.com/nodejs
+[appsignal]: https://www.appsignal.com/php
 [appsignal-sign-up]: https://appsignal.com/users/sign_up
 [contact]: mailto:support@appsignal.com
 [coc]: https://docs.appsignal.com/appsignal/code-of-conduct.html
