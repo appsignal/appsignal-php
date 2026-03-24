@@ -6,7 +6,7 @@ The AppSignal for PHP library.
 - [Documentation][docs]
 - [Support][contact]
 
-[![run-tests](https://img.shields.io/github/actions/workflow/status/appsignal/appsignal-php/ci.yml?label=tests&style=flat-square)](https://github.com/appsignal/appsignal-php/actions)
+![Tests](https://github.com/appsignal/appsignal-php/actions/workflows/ci.yml/badge.svg)
 
 ## Installation
 
