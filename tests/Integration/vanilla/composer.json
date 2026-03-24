@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": ">=8.4",
-        "appsignal/appsignal-php": "^0.1.0",
+        "appsignal/appsignal-php": "dev-main",
         "monolog/monolog": "^3.10",
         "symfony/http-client": "^7.2"
     },

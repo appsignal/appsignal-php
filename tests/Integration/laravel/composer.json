@@ -18,7 +18,7 @@
         "php": "^8.4",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^3.0",
-        "appsignal/appsignal-php": "^0.1.0",
+        "appsignal/appsignal-php": "dev-main",
         "open-telemetry/opentelemetry-auto-laravel": "^1.4"
     },
     "require-dev": {

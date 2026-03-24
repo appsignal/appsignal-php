@@ -21,7 +21,7 @@
         "symfony/routing": "8.0.*",
         "symfony/runtime": "8.0.*",
         "symfony/yaml": "8.0.*",
-        "appsignal/appsignal-php": "^0.1.0",
+        "appsignal/appsignal-php": "dev-main",
         "open-telemetry/opentelemetry-auto-symfony": "^1.1"
     },
     "config": {
