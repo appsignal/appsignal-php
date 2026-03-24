@@ -28,7 +28,7 @@ RUN composer update --no-interaction --prefer-dist --no-scripts
 COPY tests/Integration/laravel/ .
 
 # Run post-install scripts now that the full app is present
-RUN composer run-script post-update-cmd --no-interaction
+RUN composer run-script post-autoload-dump --no-interaction
 
 # Composer autoloads files before PHPUnit parses XML config.
 # Pass ENV variable to allow _autoload.php to initialize AppSignal

@@ -4,7 +4,6 @@
 /.php-cs-fixer.cache
 /.phpunit.cache
 /phpunit.xml
-/tests/Integration/laravel/
 /vendor
 composer.lock
 
