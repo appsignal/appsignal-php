@@ -1,7 +1,7 @@
 {
     "name": "appsignal/appsignal-php",
     "description": "AppSignal for PHP",
-    "version": "0.1.0",
+    "license": "MIT",
     "scripts": {
 	"cs": "php-cs-fixer check --diff",
 	"cs:fix": "php-cs-fixer fix",
