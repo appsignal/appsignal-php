@@ -1,6 +1,8 @@
 /.github export-ignore
 /scripts export-ignore
 /tests export-ignore
+.editorconfig
+.phpactor.json
 .php-cs-fixer.dist.php export-ignore
 Dockerfile export-ignore
 phpstan.neon export-ignore

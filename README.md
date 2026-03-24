@@ -6,7 +6,7 @@ The AppSignal for PHP library.
 - [Documentation][docs]
 - [Support][contact]
 
-![npm (scoped)](https://img.shields.io/npm/v/@appsignal/nodejs) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+[![run-tests](https://img.shields.io/github/actions/workflow/status/appsignal/appsignal-php/ci.yml?label=tests&style=flat-square)](https://github.com/appsignal/appsignal-php/actions)
 
 ## Installation
 
