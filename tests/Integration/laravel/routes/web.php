@@ -3,14 +3,14 @@
 use App\Http\Controllers\ErrorsController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
-use AppSignal\AppSignal;
+use Appsignal\Appsignal;
 
 Route::get('/', function () {});
 
 Route::post('/', function () {});
 
 Route::get('/instrument', function () {
-    AppSignal::instrument(
+    Appsignal::instrument(
         'my-span',
         [
             'string-attribute' => 'abcdef',
@@ -22,18 +22,18 @@ Route::get('/instrument', function () {
 });
 
 Route::get('/instrument-nested', function () {
-    AppSignal::instrument('parent', ['msg' => 'from parent span'], function () {
-        $span = AppSignal::instrument('child', ['msg' => 'from child span']);
+    Appsignal::instrument('parent', ['msg' => 'from parent span'], function () {
+        $span = Appsignal::instrument('child', ['msg' => 'from child span']);
         $span->end();
     });
 });
 
 Route::get('/set-action', function () {
-    AppSignal::setAction('my action');
+    Appsignal::setAction('my action');
 });
 
 Route::get('/custom-data', function () {
-    AppSignal::addCustomData([
+    Appsignal::addCustomData([
         'string-attribute' => 'abcdef',
         'int-attribute' => 1234,
         'bool-attribute' => true,
@@ -41,7 +41,7 @@ Route::get('/custom-data', function () {
 });
 
 Route::get('/tags', function () {
-    AppSignal::addTags([
+    Appsignal::addTags([
         'string-tag' => 'some value',
         'integer-tag' => 1234,
         'bool-tag' => true,
@@ -57,22 +57,22 @@ Route::get('/log-with-attributes', function () {
 });
 
 Route::get('/set-gauge', function () {
-    AppSignal::setGauge('my_gauge', 12);
-    AppSignal::setGauge('my_gauge_with_attributes', 13, ["region" => "eu"]);
+    Appsignal::setGauge('my_gauge', 12);
+    Appsignal::setGauge('my_gauge_with_attributes', 13, ["region" => "eu"]);
 });
 
 Route::get('/add-distribution-values', function () {
-    AppSignal::addDistributionValue('memory_usage', 50);
-    AppSignal::addDistributionValue('memory_usage', 70);
+    Appsignal::addDistributionValue('memory_usage', 50);
+    Appsignal::addDistributionValue('memory_usage', 70);
 
-    AppSignal::addDistributionValue('with_attributes', 10, ["region" => "eu"]);
-    AppSignal::addDistributionValue('with_attributes', 20, ["region" => "eu"]);
-    AppSignal::addDistributionValue('with_attributes', 30, ["region" => "eu"]);
+    Appsignal::addDistributionValue('with_attributes', 10, ["region" => "eu"]);
+    Appsignal::addDistributionValue('with_attributes', 20, ["region" => "eu"]);
+    Appsignal::addDistributionValue('with_attributes', 30, ["region" => "eu"]);
 });
 
 Route::get('/counter', function () {
-    AppSignal::incrementCounter("my_counter", 1);
-    AppSignal::incrementCounter("my_counter", 3, ["region" => "eu"]);
+    Appsignal::incrementCounter("my_counter", 1);
+    Appsignal::incrementCounter("my_counter", 3, ["region" => "eu"]);
 });
 
 Route::get('/error', [ErrorsController::class, 'show']);

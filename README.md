@@ -48,47 +48,47 @@ For more ways to install `opentelemetry` extension (pie, pickle, Docker), see th
 > For Symfony application auto-instrumentation install `open-telemetry/opentelemetry-auto-symfony` package.
 
 ```php
-use AppSignal\AppSignal;
+use Appsignal\Appsignal;
 
 // add a custom instrumentation span to the current trace
-AppSignal::instrument('some_event', fn() => sleep(1));
+Appsignal::instrument('some_event', fn() => sleep(1));
 
 // add a custom instrumentation span to the current trace with data
-AppSignal::instrument('some_event', ['region' => 'eu'], fn() => sleep(1));
+Appsignal::instrument('some_event', ['region' => 'eu'], fn() => sleep(1));
 
 // customize the name of the trace
-AppSignal::setAction('my action'),
+Appsignal::setAction('my action'),
 
 // add custom data to current span
-AppSignal::addCustomData([
+Appsignal::addCustomData([
     'string-attribute' => 'abcdef',
     'int-attribute' => 1234,
     'bool-attribute' => true,
 ]);
 
 // add tags to current span
-AppSignal::addTags([
+Appsignal::addTags([
     'string-tag' => 'some value',
     'integer-tag' => 1234,
     'bool-tag' => true,
 ]);
 
 // report a handled exception
-AppSignal::reportError($exception);
+Appsignal::reportError($exception);
 
 // add metrics
-AppSignal::setGauge('my_gauge', 12);
-AppSignal::setGauge('my_gauge_with_attributes', 13, ['region' => 'eu']);
+Appsignal::setGauge('my_gauge', 12);
+Appsignal::setGauge('my_gauge_with_attributes', 13, ['region' => 'eu']);
 
-AppSignal::addDistributionValue('memory_usage', 50);
-AppSignal::addDistributionValue('memory_usage', 70);
+Appsignal::addDistributionValue('memory_usage', 50);
+Appsignal::addDistributionValue('memory_usage', 70);
 
-AppSignal::addDistributionValue('with_attributes', 10, ['region' => 'eu']);
-AppSignal::addDistributionValue('with_attributes', 20, ['region' => 'eu']);
-AppSignal::addDistributionValue('with_attributes', 30, ['region' => 'eu']);
+Appsignal::addDistributionValue('with_attributes', 10, ['region' => 'eu']);
+Appsignal::addDistributionValue('with_attributes', 20, ['region' => 'eu']);
+Appsignal::addDistributionValue('with_attributes', 30, ['region' => 'eu']);
 
-AppSignal::incrementCounter('my_counter', 1);
-AppSignal::incrementCounter('my_counter', 3, ['region' => 'eu']);
+Appsignal::incrementCounter('my_counter', 1);
+Appsignal::incrementCounter('my_counter', 3, ['region' => 'eu']);
 ```
 
 ## Development

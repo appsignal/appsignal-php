@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AppSignal\Patches\Symfony;
+namespace Appsignal\Patches\Symfony;
 
 use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\Context\Context;

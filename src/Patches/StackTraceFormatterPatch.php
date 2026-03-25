@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AppSignal\Patches;
+namespace Appsignal\Patches;
 
 use OpenTelemetry\SDK\Common\Exception\StackTraceFormatter;
 use Throwable;

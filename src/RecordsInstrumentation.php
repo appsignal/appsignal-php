@@ -1,6 +1,6 @@
 <?php
 
-namespace AppSignal;
+namespace Appsignal;
 
 use Closure;
 use OpenTelemetry\API\Globals;

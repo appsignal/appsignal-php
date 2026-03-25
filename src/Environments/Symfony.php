@@ -1,10 +1,10 @@
 <?php
 
-namespace AppSignal\Environments;
+namespace Appsignal\Environments;
 
-use AppSignal\Config;
-use AppSignal\Patches\Symfony\HttpRoutePatch;
-use AppSignal\Patches\Symfony\LoggerPatch;
+use Appsignal\Config;
+use Appsignal\Patches\Symfony\HttpRoutePatch;
+use Appsignal\Patches\Symfony\LoggerPatch;
 
 class Symfony implements Environment
 {

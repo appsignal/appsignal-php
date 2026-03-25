@@ -1,6 +1,6 @@
 <?php
 
-namespace AppSignal\Tests\Unit;
+namespace Appsignal\Tests\Unit;
 
 use Closure;
 

@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use AppSignal\AppSignal;
+use Appsignal\Appsignal;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,7 +24,7 @@ class TestController
     #[Route('/instrument', methods: ['GET'])]
     public function instrument(): Response
     {
-        AppSignal::instrument(
+        Appsignal::instrument(
             'my-span',
             [
                 'string-attribute' => 'abcdef',
@@ -40,8 +40,8 @@ class TestController
     #[Route('/instrument-nested', methods: ['GET'])]
     public function instrumentNested(): Response
     {
-        AppSignal::instrument('parent', ['msg' => 'from parent span'], function () {
-            $span = AppSignal::instrument('child', ['msg' => 'from child span']);
+        Appsignal::instrument('parent', ['msg' => 'from parent span'], function () {
+            $span = Appsignal::instrument('child', ['msg' => 'from child span']);
             $span->end();
         });
 
@@ -51,7 +51,7 @@ class TestController
     #[Route('/set-action', methods: ['GET'])]
     public function setAction(): Response
     {
-        AppSignal::setAction('my action');
+        Appsignal::setAction('my action');
 
         return new Response();
     }
@@ -59,7 +59,7 @@ class TestController
     #[Route('/custom-data', methods: ['GET'])]
     public function customData(): Response
     {
-        AppSignal::addCustomData([
+        Appsignal::addCustomData([
             'string-attribute' => 'abcdef',
             'int-attribute' => 1234,
             'bool-attribute' => true,
@@ -71,7 +71,7 @@ class TestController
     #[Route('/tags', methods: ['GET'])]
     public function tags(): Response
     {
-        AppSignal::addTags([
+        Appsignal::addTags([
             'string-tag' => 'some value',
             'integer-tag' => 1234,
             'bool-tag' => true,
@@ -99,8 +99,8 @@ class TestController
     #[Route('/set-gauge', methods: ['GET'])]
     public function setGauge(): Response
     {
-        AppSignal::setGauge('my_gauge', 12);
-        AppSignal::setGauge('my_gauge_with_attributes', 13, ["region" => "eu"]);
+        Appsignal::setGauge('my_gauge', 12);
+        Appsignal::setGauge('my_gauge_with_attributes', 13, ["region" => "eu"]);
 
         return new Response();
     }
@@ -108,12 +108,12 @@ class TestController
     #[Route('/add-distribution-values', methods: ['GET'])]
     public function addDistributionValues(): Response
     {
-        AppSignal::addDistributionValue('memory_usage', 50);
-        AppSignal::addDistributionValue('memory_usage', 70);
+        Appsignal::addDistributionValue('memory_usage', 50);
+        Appsignal::addDistributionValue('memory_usage', 70);
 
-        AppSignal::addDistributionValue('with_attributes', 10, ["region" => "eu"]);
-        AppSignal::addDistributionValue('with_attributes', 20, ["region" => "eu"]);
-        AppSignal::addDistributionValue('with_attributes', 30, ["region" => "eu"]);
+        Appsignal::addDistributionValue('with_attributes', 10, ["region" => "eu"]);
+        Appsignal::addDistributionValue('with_attributes', 20, ["region" => "eu"]);
+        Appsignal::addDistributionValue('with_attributes', 30, ["region" => "eu"]);
 
         return new Response();
     }
@@ -121,8 +121,8 @@ class TestController
     #[Route('/counter', methods: ['GET'])]
     public function counter(): Response
     {
-        AppSignal::incrementCounter("my_counter", 1);
-        AppSignal::incrementCounter("my_counter", 3, ["region" => "eu"]);
+        Appsignal::incrementCounter("my_counter", 1);
+        Appsignal::incrementCounter("my_counter", 3, ["region" => "eu"]);
 
         return new Response();
     }

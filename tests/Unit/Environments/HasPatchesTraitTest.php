@@ -1,10 +1,10 @@
 <?php
 
-namespace AppSignal\Tests\Unit\Environments;
+namespace Appsignal\Tests\Unit\Environments;
 
-use AppSignal\Config;
-use AppSignal\Environments\Environment;
-use AppSignal\Environments\HasPatches;
+use Appsignal\Config;
+use Appsignal\Environments\Environment;
+use Appsignal\Environments\HasPatches;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;

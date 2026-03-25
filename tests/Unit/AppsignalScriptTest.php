@@ -1,10 +1,10 @@
 <?php
 
-namespace AppSignal\Tests\Unit;
+namespace Appsignal\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 
-class AppSignalScriptTest extends TestCase
+class AppsignalScriptTest extends TestCase
 {
     protected static string $packageDir;
     protected static string $tempDir;
@@ -24,7 +24,7 @@ class AppSignalScriptTest extends TestCase
         $output = $this->runScript('init', $projectDir);
 
         $target = "$projectDir/config/appsignal.php";
-        $this->assertStringContainsString("AppSignal config file created at $target", $output);
+        $this->assertStringContainsString("Appsignal config file created at $target", $output);
         $this->assertFileExists($target);
         $this->assertFileEquals(self::$packageDir . '/config-stubs/appsignal.php', $target);
     }
@@ -39,7 +39,7 @@ class AppSignalScriptTest extends TestCase
         $output = $this->runScript('init', $projectDir);
 
         $target = "$projectDir/config/appsignal.php";
-        $this->assertStringContainsString("AppSignal config file created at $target", $output);
+        $this->assertStringContainsString("Appsignal config file created at $target", $output);
         $this->assertFileExists($target);
         $this->assertFileEquals(self::$packageDir . '/config-stubs/appsignal.laravel.php', $target);
     }
@@ -53,7 +53,7 @@ class AppSignalScriptTest extends TestCase
         $output = $this->runScript('init', $projectDir);
 
         $target = "$projectDir/config/packages/appsignal.php";
-        $this->assertStringContainsString("AppSignal config file created at $target", $output);
+        $this->assertStringContainsString("Appsignal config file created at $target", $output);
         $this->assertFileExists($target);
         $this->assertFileEquals(self::$packageDir . '/config-stubs/appsignal.php', $target);
     }

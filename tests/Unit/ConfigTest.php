@@ -1,8 +1,8 @@
 <?php
 
-namespace AppSignal\Tests\Unit;
+namespace Appsignal\Tests\unit;
 
-use AppSignal\Config;
+use Appsignal\Config;
 use PHPUnit\Framework\TestCase;
 
 class ConfigTest extends TestCase
