@@ -1,10 +1,10 @@
 <?php
 
-namespace AppSignal\Integrations\Laravel;
+namespace Appsignal\Integrations\Laravel;
 
 use Illuminate\Support\ServiceProvider;
 
-class AppSignalServiceProvider extends ServiceProvider
+class AppsignalServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {

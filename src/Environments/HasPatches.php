@@ -1,6 +1,6 @@
 <?php
 
-namespace AppSignal\Environments;
+namespace Appsignal\Environments;
 
 trait HasPatches
 {

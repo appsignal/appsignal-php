@@ -22,7 +22,7 @@ WORKDIR /app
 COPY tests/Integration/laravel/composer.json .
 
 # Install dependencies (no-scripts: artisan isn't available yet)
-RUN composer update --no-interaction --prefer-dist --no-scripts
+RUN composer install --no-interaction --prefer-dist --no-scripts
 
 # Copy the rest of the Laravel app
 COPY tests/Integration/laravel/ .
@@ -31,7 +31,7 @@ COPY tests/Integration/laravel/ .
 RUN composer run-script post-autoload-dump --no-interaction
 
 # Composer autoloads files before PHPUnit parses XML config.
-# Pass ENV variable to allow _autoload.php to initialize AppSignal
+# Pass ENV variable to allow _autoload.php to initialize Appsignal
 # in CLI mode for this test run.
 ENV _APPSIGNAL_TEST=true
 

@@ -1,12 +1,12 @@
 <?php
 
-namespace AppSignal;
+namespace Appsignal;
 
-use AppSignal\Environments\Environment;
-use AppSignal\Environments\Laravel;
-use AppSignal\Environments\Symfony;
-use AppSignal\Environments\Vanilla;
-use AppSignal\Patches\StackTraceFormatterPatch;
+use Appsignal\Environments\Environment;
+use Appsignal\Environments\Laravel;
+use Appsignal\Environments\Symfony;
+use Appsignal\Environments\Vanilla;
+use Appsignal\Patches\StackTraceFormatterPatch;
 use Dotenv\Dotenv;
 use OpenTelemetry\API\Trace\Propagation\TraceContextPropagator;
 use OpenTelemetry\Contrib\Otlp\MetricExporter;
@@ -26,7 +26,7 @@ use OpenTelemetry\SDK\Common\Attribute\Attributes;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Resource\ResourceInfoFactory;
 
-class AppSignal
+class Appsignal
 {
     use RecordsInstrumentation;
     use RecordsMetrics;
@@ -114,7 +114,7 @@ class AppSignal
 
         if (!$this->extensionIsLoaded()) {
             trigger_error(
-                'AppSignal: the "opentelemetry" PHP extension is not loaded. AppSignal will not be initialized.',
+                'Appsignal: the "opentelemetry" PHP extension is not loaded. Appsignal will not be initialized.',
                 E_USER_WARNING,
             );
 
@@ -135,9 +135,9 @@ class AppSignal
             $missing = $config->getMissingFields();
 
             trigger_error(
-                'AppSignal: configuration is invalid. Missing required fields: '
+                'Appsignal: configuration is invalid. Missing required fields: '
                     . implode(', ', $missing)
-                    . '. AppSignal will not be initialized.',
+                    . '. Appsignal will not be initialized.',
                 E_USER_WARNING,
             );
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace AppSignal\Environments;
+namespace Appsignal\Environments;
 
-use AppSignal\Config;
+use Appsignal\Config;
 
 interface Environment
 {

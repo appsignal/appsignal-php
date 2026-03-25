@@ -1,9 +1,9 @@
 <?php
 
-namespace AppSignal\Tests\Unit\Environments;
+namespace Appsignal\Tests\Unit\Environments;
 
-use AppSignal\Config;
-use AppSignal\Environments\Symfony;
+use Appsignal\Config;
+use Appsignal\Environments\Symfony;
 use PHPUnit\Framework\TestCase;
 
 class SymfonyTest extends TestCase

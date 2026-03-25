@@ -1,6 +1,6 @@
 <?php
 
-namespace AppSignal\Tests\Integration\laravel\tests\Feature;
+namespace Tests\Feature;
 
 use OpenTelemetry\SDK\Metrics\Data\HistogramDataPoint;
 use OpenTelemetry\SDK\Metrics\Data\Sum;

@@ -1,6 +1,6 @@
 <?php
 
-namespace AppSignal\Patches\Symfony;
+namespace Appsignal\Patches\Symfony;
 
 use Monolog\Logger;
 use OpenTelemetry\API\Globals;

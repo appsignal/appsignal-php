@@ -1,8 +1,8 @@
 <?php
 
-namespace AppSignal\Tests\Unit;
+namespace Appsignal\Tests\Unit;
 
-use AppSignal\AppSignal;
+use Appsignal\Appsignal;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\Attributes\Group;
@@ -21,33 +21,33 @@ class AutoloadTest extends TestCase
     protected function tearDown(): void
     {
         unset($_ENV['LARAVEL_ARTISAN']);
-        AppSignal::setInstance(null);
+        Appsignal::setInstance(null);
     }
 
     #[Group('no-extension')]
     public function testDoesNotInitializeWithoutExtension(): void
     {
-        $this->assertFalse(AppSignal::extensionIsLoaded());
+        $this->assertFalse(Appsignal::extensionIsLoaded());
 
-        /** @var \Mockery\MockInterface&AppSignal $spy */
-        $spy = Mockery::spy(AppSignal::class);
-        AppSignal::setInstance($spy);
+        /** @var \Mockery\MockInterface&Appsignal $spy */
+        $spy = Mockery::spy(Appsignal::class);
+        Appsignal::setInstance($spy);
 
         $warning = $this->callAndCaptureWarnings(function () {
             require __DIR__ . '/../../_autoload.php';
         });
 
-        $this->assertEquals('The "opentelemetry" extension must be loaded to use AppSignal', $warning);
+        $this->assertEquals('The "opentelemetry" extension must be loaded to use Appsignal', $warning);
         $spy->shouldNotHaveReceived('initialize');
     }
 
     public function testInitializesWithExtension(): void
     {
-        $this->assertTrue(AppSignal::extensionIsLoaded());
+        $this->assertTrue(Appsignal::extensionIsLoaded());
 
-        /** @var \Mockery\MockInterface&AppSignal $spy */
-        $spy = Mockery::spy(AppSignal::class);
-        AppSignal::setInstance($spy);
+        /** @var \Mockery\MockInterface&Appsignal $spy */
+        $spy = Mockery::spy(Appsignal::class);
+        Appsignal::setInstance($spy);
 
         require __DIR__ . '/../../_autoload.php';
 

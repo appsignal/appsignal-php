@@ -1,9 +1,9 @@
 <?php
 
-namespace AppSignal\Tests\Unit\Environments;
+namespace Appsignal\Tests\Unit\Environments;
 
-use AppSignal\Config;
-use AppSignal\Environments\Laravel;
+use Appsignal\Config;
+use Appsignal\Environments\Laravel;
 use PHPUnit\Framework\TestCase;
 
 class LaravelTest extends TestCase

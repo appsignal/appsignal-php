@@ -1,14 +1,14 @@
 <?php
 
-namespace AppSignal\Tests\Unit;
+namespace Appsignal\Tests\Unit;
 
-use AppSignal\RecordsMetrics;
+use Appsignal\RecordsMetrics;
 
 class RecordsMetricsTraitTest extends OpenTelemetryTestCase
 {
     public function testSetGaugeRecordsGaugeMetric(): void
     {
-        AppSignalMetricsStub::setGauge('cpu_usage', 75.5);
+        AppsignalMetricsStub::setGauge('cpu_usage', 75.5);
 
         $metric = $this->findMetricByName('cpu_usage');
         $this->assertNotNull($metric, 'Gauge metric not found');
@@ -20,7 +20,7 @@ class RecordsMetricsTraitTest extends OpenTelemetryTestCase
 
     public function testSetGaugeWithIntegerValue(): void
     {
-        AppSignalMetricsStub::setGauge('active_connections', 42);
+        AppsignalMetricsStub::setGauge('active_connections', 42);
 
         $metric = $this->findMetricByName('active_connections');
         $this->assertNotNull($metric);
@@ -31,7 +31,7 @@ class RecordsMetricsTraitTest extends OpenTelemetryTestCase
 
     public function testAddDistributionValueRecordsHistogramMetric(): void
     {
-        AppSignalMetricsStub::addDistributionValue('request_duration', 0.250);
+        AppsignalMetricsStub::addDistributionValue('request_duration', 0.250);
 
         $metric = $this->findMetricByName('request_duration');
         $this->assertNotNull($metric, 'Histogram metric "request_duration" not found');
@@ -45,9 +45,9 @@ class RecordsMetricsTraitTest extends OpenTelemetryTestCase
 
     public function testAddDistributionValueMultipleTimes(): void
     {
-        AppSignalMetricsStub::addDistributionValue('response_time', 0.100);
-        AppSignalMetricsStub::addDistributionValue('response_time', 0.200);
-        AppSignalMetricsStub::addDistributionValue('response_time', 0.300);
+        AppsignalMetricsStub::addDistributionValue('response_time', 0.100);
+        AppsignalMetricsStub::addDistributionValue('response_time', 0.200);
+        AppsignalMetricsStub::addDistributionValue('response_time', 0.300);
 
         $metric = $this->findMetricByName('response_time');
         $this->assertNotNull($metric);
@@ -60,7 +60,7 @@ class RecordsMetricsTraitTest extends OpenTelemetryTestCase
 
     public function testIncrementCounterRecordsCounterMetric(): void
     {
-        AppSignalMetricsStub::incrementCounter('http_requests', 1);
+        AppsignalMetricsStub::incrementCounter('http_requests', 1);
 
         $metric = $this->findMetricByName('http_requests');
         $this->assertNotNull($metric, 'Counter metric "http_requests" not found');
@@ -73,8 +73,8 @@ class RecordsMetricsTraitTest extends OpenTelemetryTestCase
 
     public function testIncrementCounterAccumulatesValues(): void
     {
-        AppSignalMetricsStub::incrementCounter('page_views', 5);
-        AppSignalMetricsStub::incrementCounter('page_views', 3);
+        AppsignalMetricsStub::incrementCounter('page_views', 5);
+        AppsignalMetricsStub::incrementCounter('page_views', 3);
 
         $metric = $this->findMetricByName('page_views');
         $this->assertNotNull($metric);
@@ -86,8 +86,8 @@ class RecordsMetricsTraitTest extends OpenTelemetryTestCase
 
     public function testDifferentMetricNamesAreIndependent(): void
     {
-        AppSignalMetricsStub::incrementCounter('counter_a', 10);
-        AppSignalMetricsStub::incrementCounter('counter_b', 20);
+        AppsignalMetricsStub::incrementCounter('counter_a', 10);
+        AppsignalMetricsStub::incrementCounter('counter_b', 20);
 
 
         $metricA = $this->findMetricByName('counter_a');
@@ -101,7 +101,7 @@ class RecordsMetricsTraitTest extends OpenTelemetryTestCase
     }
 }
 
-class AppSignalMetricsStub
+class AppsignalMetricsStub
 {
     use RecordsMetrics;
 }

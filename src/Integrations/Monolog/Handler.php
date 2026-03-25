@@ -1,6 +1,6 @@
 <?php
 
-namespace AppSignal\Integrations\Monolog;
+namespace Appsignal\Integrations\Monolog;
 
 use OpenTelemetry\API\Globals;
 use OpenTelemetry\Contrib\Logs\Monolog\Handler as MonologHandler;

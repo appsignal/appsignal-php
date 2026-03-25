@@ -29,12 +29,12 @@ case "${1:-}" in
 
 		mkdir -p "$TARGET_DIR"
 		cp "$TEMPLATE" "$TARGET"
-		echo "AppSignal config file created at $TARGET"
+		echo "Appsignal config file created at $TARGET"
 		;;
 	*)
 		echo "Usage: appsignal <command>"
 		echo ""
 		echo "Commands:"
-		echo "  init    Scaffold the AppSignal config file for your application"
+		echo "  init    Scaffold the Appsignal config file for your application"
 		;;
 esac

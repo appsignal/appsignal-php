@@ -2,8 +2,8 @@
 
 namespace App;
 
-use AppSignal\AppSignal;
-use AppSignal\Integrations\Monolog\Handler;
+use Appsignal\Appsignal;
+use Appsignal\Integrations\Monolog\Handler;
 use Monolog\Logger;
 use OpenTelemetry\API\Globals;
 use OpenTelemetry\API\Trace\SpanKind;
@@ -28,6 +28,7 @@ class Router
             static::route($method, $uri);
             $span->setAttribute('http.response.status_code', 200);
         } catch (\Throwable $e) {
+            Appsignal::recordError($e);
             $span->recordException($e);
             $span->setStatus(StatusCode::STATUS_ERROR, $e->getMessage());
             $span->setAttribute('http.response.status_code', 500);
@@ -44,7 +45,7 @@ class Router
 
         match ($uri) {
             '/' => null,
-            '/instrument' => AppSignal::instrument(
+            '/instrument' => Appsignal::instrument(
                 'my-span',
                 [
                     'string-attribute' => 'abcdef',
@@ -53,21 +54,21 @@ class Router
                 ],
                 function () {}
             ),
-            '/instrument-nested' => AppSignal::instrument(
+            '/instrument-nested' => Appsignal::instrument(
                 'parent',
                 ['msg' => 'from parent span'],
                 function () {
-                    $span = AppSignal::instrument('child', ['msg' => 'from child span']);
+                    $span = Appsignal::instrument('child', ['msg' => 'from child span']);
                     $span->end();
                 }
             ),
-            '/set-action' => AppSignal::setAction('my action'),
-            '/custom-data' => AppSignal::addCustomData([
+            '/set-action' => Appsignal::setAction('my action'),
+            '/custom-data' => Appsignal::addCustomData([
                 'string-attribute' => 'abcdef',
                 'int-attribute' => 1234,
                 'bool-attribute' => true,
             ]),
-            '/tags' => AppSignal::addTags([
+            '/tags' => Appsignal::addTags([
                 'string-tag' => 'some value',
                 'integer-tag' => 1234,
                 'bool-tag' => true,
@@ -75,19 +76,19 @@ class Router
             '/log' => $logger->info('My log'),
             '/log-with-attributes' => $logger->info('My log with attributes', ['foo' => 'bar']),
             '/set-gauge' => (function () {
-                AppSignal::setGauge('my_gauge', 12);
-                AppSignal::setGauge('my_gauge_with_attributes', 13, ['region' => 'eu']);
+                Appsignal::setGauge('my_gauge', 12);
+                Appsignal::setGauge('my_gauge_with_attributes', 13, ['region' => 'eu']);
             })(),
             '/add-distribution-values' => (function () {
-                AppSignal::addDistributionValue('memory_usage', 50);
-                AppSignal::addDistributionValue('memory_usage', 70);
-                AppSignal::addDistributionValue('with_attributes', 10, ['region' => 'eu']);
-                AppSignal::addDistributionValue('with_attributes', 20, ['region' => 'eu']);
-                AppSignal::addDistributionValue('with_attributes', 30, ['region' => 'eu']);
+                Appsignal::addDistributionValue('memory_usage', 50);
+                Appsignal::addDistributionValue('memory_usage', 70);
+                Appsignal::addDistributionValue('with_attributes', 10, ['region' => 'eu']);
+                Appsignal::addDistributionValue('with_attributes', 20, ['region' => 'eu']);
+                Appsignal::addDistributionValue('with_attributes', 30, ['region' => 'eu']);
             })(),
             '/counter' => (function () {
-                AppSignal::incrementCounter('my_counter', 1);
-                AppSignal::incrementCounter('my_counter', 3, ['region' => 'eu']);
+                Appsignal::incrementCounter('my_counter', 1);
+                Appsignal::incrementCounter('my_counter', 3, ['region' => 'eu']);
             })(),
             '/error' => (function () {
                 $controller = new ErrorsController();

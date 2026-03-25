@@ -1,46 +1,46 @@
 <?php
 
-namespace AppSignal\Tests\Unit;
+namespace Appsignal\Tests\Unit;
 
-use AppSignal\AppSignal;
-use AppSignal\Config;
-use AppSignal\Environments\Environment;
+use Appsignal\Appsignal;
+use Appsignal\Config;
+use Appsignal\Environments\Environment;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
-class AppSignalTest extends TestCase
+class AppsignalTest extends TestCase
 {
     use CapturesWarnings;
 
     protected function tearDown(): void
     {
-        AppSignal::setInstance(null);
+        Appsignal::setInstance(null);
         $this->cleanupFixtures();
     }
 
     public function testClassIsSingleton(): void
     {
-        $first = AppSignal::getInstance();
-        $second = AppSignal::getInstance();
+        $first = Appsignal::getInstance();
+        $second = Appsignal::getInstance();
 
         $this->assertSame($first, $second);
     }
 
     public function testSetInstanceReplacesInstance(): void
     {
-        $original = AppSignal::getInstance();
+        $original = Appsignal::getInstance();
 
-        AppSignal::setInstance(null);
+        Appsignal::setInstance(null);
 
-        $new = AppSignal::getInstance();
+        $new = Appsignal::getInstance();
 
         $this->assertNotSame($original, $new);
     }
 
     public function testBasePathGetterAndSetter(): void
     {
-        $appSignal = AppSignal::getInstance();
+        $appSignal = Appsignal::getInstance();
 
         // default should be null
         $this->assertNull($appSignal->getBasePath());
@@ -57,7 +57,7 @@ class AppSignalTest extends TestCase
 
     public function testExtensionIsLoadedReturnsBool(): void
     {
-        $result = AppSignal::extensionIsLoaded();
+        $result = Appsignal::extensionIsLoaded();
 
         $this->assertSame(extension_loaded('opentelemetry'), $result);
     }
@@ -69,7 +69,7 @@ class AppSignalTest extends TestCase
 
         unset($_ENV['APP_KEY']);
 
-        $appSignal = AppSignal::getInstance();
+        $appSignal = Appsignal::getInstance();
         $appSignal->setBasePath($dir);
 
         $appSignal->loadEnv();
@@ -86,7 +86,7 @@ class AppSignalTest extends TestCase
 
         $_ENV['APP_KEY'] = 'some-key';
 
-        $appSignal = AppSignal::getInstance();
+        $appSignal = Appsignal::getInstance();
         $appSignal->setBasePath($dir);
 
         $appSignal->loadEnv();
@@ -100,7 +100,7 @@ class AppSignalTest extends TestCase
     {
         unset($_ENV['APP_KEY']);
 
-        $appSignal = AppSignal::getInstance();
+        $appSignal = Appsignal::getInstance();
 
         $appSignal->loadEnv();
 
@@ -114,7 +114,7 @@ class AppSignalTest extends TestCase
         exec("git -C " . escapeshellarg($dir) . " init 2>/dev/null");
         exec("git -C " . escapeshellarg($dir) . " -c user.name=Test -c user.email=test@test.com -c commit.gpgsign=false commit --allow-empty -m 'init' 2>/dev/null");
 
-        $appSignal = AppSignal::getInstance();
+        $appSignal = Appsignal::getInstance();
         $appSignal->setBasePath($dir);
 
         $this->assertMatchesRegularExpression('/^[0-9a-f]{40}$/', $appSignal->getRevision());
@@ -122,7 +122,7 @@ class AppSignalTest extends TestCase
 
     public function testGetRevisionReturnsUnknownWhenBasePathIsNull(): void
     {
-        $appSignal = AppSignal::getInstance();
+        $appSignal = Appsignal::getInstance();
         $appSignal->setBasePath(null);
 
         $this->assertEquals('unknown', $appSignal->getRevision());
@@ -132,7 +132,7 @@ class AppSignalTest extends TestCase
     {
         $fixtureDir = $this->createTempDir();
 
-        $appSignal = AppSignal::getInstance();
+        $appSignal = Appsignal::getInstance();
         $appSignal->setBasePath($fixtureDir);
 
         $this->assertEquals('unknown', $appSignal->getRevision());
@@ -141,7 +141,7 @@ class AppSignalTest extends TestCase
     #[Group('no-extension')]
     public function testInitializeWarnsWhenExtensionIsNotLoaded(): void
     {
-        $appSignal = AppSignal::getInstance();
+        $appSignal = Appsignal::getInstance();
 
         $warning = $this->callAndCaptureWarnings(fn() => $appSignal->initialize());
 
@@ -162,7 +162,7 @@ class AppSignalTest extends TestCase
             }
         };
 
-        $appSignal = new class ($environment) extends AppSignal {
+        $appSignal = new class ($environment) extends Appsignal {
             public function __construct(private Environment $testEnv) {}
 
             protected function detectEnvironment(): Environment
@@ -171,7 +171,7 @@ class AppSignalTest extends TestCase
             }
         };
 
-        AppSignal::setInstance($appSignal);
+        Appsignal::setInstance($appSignal);
 
         $warning = $this->callAndCaptureWarnings(fn() => $appSignal->initialize());
 

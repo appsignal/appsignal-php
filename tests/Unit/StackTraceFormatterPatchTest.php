@@ -1,9 +1,9 @@
 <?php
 
-namespace AppSignal\Tests\Unit;
+namespace Appsignal\Tests\Unit;
 
-use AppSignal\AppSignal;
-use AppSignal\Patches\StackTraceFormatterPatch;
+use Appsignal\Appsignal;
+use Appsignal\Patches\StackTraceFormatterPatch;
 use Exception;
 use OpenTelemetry\SDK\Common\Exception\StackTraceFormatter;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -23,8 +23,8 @@ class StackTraceFormatterPatchTest extends TestCase
 
         [$firstLine, $secondLine] = explode("\n", $result);
 
-        $this->assertEquals("AppSignal\Tests\Unit\CustomException: Whoops", $firstLine);
-        $this->assertStringEndsWith("AppSignal\Tests\Unit\Thrower::throwSingle()", $secondLine);
+        $this->assertEquals("Appsignal\Tests\Unit\CustomException: Whoops", $firstLine);
+        $this->assertStringEndsWith("Appsignal\Tests\Unit\Thrower::throwSingle()", $secondLine);
     }
 
     #[RunInSeparateProcess]
@@ -61,7 +61,7 @@ class StackTraceFormatterPatchTest extends TestCase
     {
         $_ENV['APPSIGNAL_DISABLE_PATCHES'] = 'stack_trace_formatter';
 
-        $appSignal = TestableAppSignal::create($this->getPackageRootDir());
+        $appSignal = TestableAppsignal::create($this->getPackageRootDir());
         $appSignal->callRegisterGlobalHooks();
 
         $exception = $this->captureException([Thrower::class, 'throwSingle']);
@@ -81,10 +81,10 @@ class StackTraceFormatterPatchTest extends TestCase
 
         $result = StackTraceFormatter::format($exception);
 
-        $this->assertStringStartsWith("AppSignal\Tests\Unit\OuterException: Outer", $result);
-        $this->assertStringContainsString("Caused by: AppSignal\Tests\Unit\MiddleException: Middle", $result);
-        $this->assertStringContainsString("Caused by: AppSignal\Tests\Unit\InnerException: Inner", $result);
-        $this->assertStringNotContainsString("Caused by: AppSignal\Tests\Unit\OuterException: Outer", $result);
+        $this->assertStringStartsWith("Appsignal\Tests\Unit\OuterException: Outer", $result);
+        $this->assertStringContainsString("Caused by: Appsignal\Tests\Unit\MiddleException: Middle", $result);
+        $this->assertStringContainsString("Caused by: Appsignal\Tests\Unit\InnerException: Inner", $result);
+        $this->assertStringNotContainsString("Caused by: Appsignal\Tests\Unit\OuterException: Outer", $result);
     }
 
     /**
@@ -133,7 +133,7 @@ class Thrower
     }
 }
 
-class TestableAppSignal extends AppSignal
+class TestableAppsignal extends Appsignal
 {
     public static function create(string $basePath): self
     {
