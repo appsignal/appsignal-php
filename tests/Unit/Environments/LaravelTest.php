@@ -35,7 +35,7 @@ class LaravelTest extends TestCase
 
         $this->assertEquals('Laravel App', $config->name);
         $this->assertEquals('laravel-key', $config->pushApiKey);
-        $this->assertEquals('https://collector.test', $config->collectorUrl);
+        $this->assertEquals('https://collector.test', $config->collectorEndpoint);
         $this->assertEquals('staging', $config->environment);
         $this->assertEquals(['stack_trace_formatter'], $config->disablePatches);
     }

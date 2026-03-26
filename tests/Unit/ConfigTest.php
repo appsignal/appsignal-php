@@ -20,7 +20,7 @@ class ConfigTest extends TestCase
             $_ENV['APP_NAME'],
             $_ENV['APP_ENV'],
             $_ENV['APPSIGNAL_PUSH_API_KEY'],
-            $_ENV['APPSIGNAL_COLLECTOR_URL'],
+            $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'],
         );
     }
 
@@ -33,7 +33,7 @@ class ConfigTest extends TestCase
     public function testConstructorSetsProperties(): void
     {
         $config = new Config(
-            collectorUrl: 'https://collector.test',
+            collectorEndpoint: 'https://collector.test',
             disablePatches: ['custom_patch'],
             environment: 'production',
             name: 'My App',
@@ -43,7 +43,7 @@ class ConfigTest extends TestCase
         $this->assertEquals('My App', $config->name);
         $this->assertEquals('production', $config->environment);
         $this->assertEquals('test-key', $config->pushApiKey);
-        $this->assertEquals('https://collector.test', $config->collectorUrl);
+        $this->assertEquals('https://collector.test', $config->collectorEndpoint);
         $this->assertEquals(['custom_patch'], $config->disablePatches);
     }
 
@@ -61,7 +61,7 @@ class ConfigTest extends TestCase
         $this->assertEquals('Laravel App', $config->name);
         $this->assertEquals('staging', $config->environment);
         $this->assertEquals('laravel-key', $config->pushApiKey);
-        $this->assertEquals('https://collector.test', $config->collectorUrl);
+        $this->assertEquals('https://collector.test', $config->collectorEndpoint);
         $this->assertEquals(['stack_trace_formatter'], $config->disablePatches);
     }
 
@@ -82,14 +82,14 @@ class ConfigTest extends TestCase
     public function testFromFileAndEnvVariables(): void
     {
         $_ENV['APPSIGNAL_PUSH_API_KEY'] = 'fake-key';
-        $_ENV['APPSIGNAL_COLLECTOR_URL'] = 'https://collector.test';
+        $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'] = 'https://collector.test';
         $_ENV['APPSIGNAL_DISABLE_PATCHES'] = 'foo,bar,baz';
 
         $config = Config::tryFromFile(__DIR__ . '/../stubs/laravel/config/appsignal_partial.php');
 
         $this->assertEquals('Partial App', $config->name);
         $this->assertEquals('fake-key', $config->pushApiKey);
-        $this->assertEquals('https://collector.test', $config->collectorUrl);
+        $this->assertEquals('https://collector.test', $config->collectorEndpoint);
         $this->assertNull($config->environment);
         $this->assertEquals(['foo', 'bar', 'baz'], $config->disablePatches);
     }
@@ -97,14 +97,14 @@ class ConfigTest extends TestCase
     public function testWithEnvVariables(): void
     {
         $_ENV['APPSIGNAL_PUSH_API_KEY'] = 'fake-key';
-        $_ENV['APPSIGNAL_COLLECTOR_URL'] = 'https://collector.test';
+        $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'] = 'https://collector.test';
 
         $config = new Config();
 
         $this->assertNull($config->name);
         $this->assertNull($config->environment);
         $this->assertEquals('fake-key', $config->pushApiKey);
-        $this->assertEquals('https://collector.test', $config->collectorUrl);
+        $this->assertEquals('https://collector.test', $config->collectorEndpoint);
     }
 
     public function testExplicitValuesOverEnv(): void
@@ -112,19 +112,19 @@ class ConfigTest extends TestCase
         $_ENV['APPSIGNAL_APP_NAME'] = 'Env App';
         $_ENV['APP_ENV'] = 'staging';
         $_ENV['APPSIGNAL_PUSH_API_KEY'] = 'env-key';
-        $_ENV['APPSIGNAL_COLLECTOR_URL'] = 'https://collector.env.test';
+        $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'] = 'https://collector.env.test';
 
         $config = new Config(
             name: 'Explicit App',
             environment: 'production',
             pushApiKey: 'explicit-key',
-            collectorUrl: 'https://collector.explicit.test',
+            collectorEndpoint: 'https://collector.explicit.test',
         );
 
         $this->assertEquals('Explicit App', $config->name);
         $this->assertEquals('production', $config->environment);
         $this->assertEquals('explicit-key', $config->pushApiKey);
-        $this->assertEquals('https://collector.explicit.test', $config->collectorUrl);
+        $this->assertEquals('https://collector.explicit.test', $config->collectorEndpoint);
     }
 
     public function testWithInvalidDisablePatchesConfig(): void
@@ -139,7 +139,7 @@ class ConfigTest extends TestCase
         $config = new Config();
 
         $this->assertEquals(
-            ['push_api_key', 'collector_url', 'name', 'environment'],
+            ['push_api_key', 'collector_endpoint', 'name', 'environment'],
             $config->getMissingFields(),
         );
     }
@@ -152,7 +152,7 @@ class ConfigTest extends TestCase
         );
 
         $this->assertEquals(
-            ['collector_url', 'environment'],
+            ['collector_endpoint', 'environment'],
             $config->getMissingFields(),
         );
     }
@@ -163,7 +163,7 @@ class ConfigTest extends TestCase
             name: 'My App',
             environment: 'production',
             pushApiKey: 'test-key',
-            collectorUrl: 'https://collector.test',
+            collectorEndpoint: 'https://collector.test',
         );
 
         $this->assertEmpty($config->getMissingFields());
@@ -174,7 +174,7 @@ class ConfigTest extends TestCase
         $this->assertNull($config->name);
         $this->assertNull($config->environment);
         $this->assertNull($config->pushApiKey);
-        $this->assertNull($config->collectorUrl);
+        $this->assertNull($config->collectorEndpoint);
         $this->assertEmpty($config->disablePatches);
     }
 }

@@ -15,13 +15,13 @@ class Config
         public ?string $name = null,
         public ?string $environment = null,
         public ?string $pushApiKey = null,
-        public ?string $collectorUrl = null,
+        public ?string $collectorEndpoint = null,
         public ?array $disablePatches = null,
     ) {
         $this->name ??= $_ENV['APPSIGNAL_APP_NAME'] ?? $_ENV['APP_NAME'] ?? null;
-        $this->environment ??= $_ENV['APP_ENV'] ?? null;
+        $this->environment ??= $_ENV['APPSIGNAL_APP_ENV'] ?? $_ENV['APP_ENV'] ?? null;
         $this->pushApiKey ??= $_ENV['APPSIGNAL_PUSH_API_KEY'] ?? null;
-        $this->collectorUrl ??= $_ENV['APPSIGNAL_COLLECTOR_URL'] ?? null;
+        $this->collectorEndpoint ??= $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'] ?? null;
         $disablePatchesFromEnv = $_ENV['APPSIGNAL_DISABLE_PATCHES'] ?? null;
         $this->disablePatches ??= $disablePatchesFromEnv ? explode(",", $disablePatchesFromEnv) : [];
     }
@@ -29,7 +29,7 @@ class Config
     public function isValid(): bool
     {
         return !empty($this->pushApiKey)
-            && !empty($this->collectorUrl)
+            && !empty($this->collectorEndpoint)
             && !empty($this->name)
             && !empty($this->environment);
     }
@@ -44,8 +44,8 @@ class Config
         if (empty($this->pushApiKey)) {
             $missing[] = 'push_api_key';
         }
-        if (empty($this->collectorUrl)) {
-            $missing[] = 'collector_url';
+        if (empty($this->collectorEndpoint)) {
+            $missing[] = 'collector_endpoint';
         }
         if (empty($this->name)) {
             $missing[] = 'name';
@@ -78,7 +78,7 @@ class Config
                 name: $values['name'] ?? null,
                 environment: $values['environment'] ?? null,
                 pushApiKey: $values['push_api_key'] ?? null,
-                collectorUrl: $values['collector_url'] ?? null,
+                collectorEndpoint: $values['collector_endpoint'] ?? null,
                 disablePatches: is_array($disabledPatches) ? $disabledPatches : null,
             );
         } catch (Throwable $e) {

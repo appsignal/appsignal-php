@@ -177,7 +177,7 @@ class AppsignalTest extends TestCase
 
         $this->assertStringContainsString('configuration is invalid', $warning);
         $this->assertStringContainsString('push_api_key', $warning);
-        $this->assertStringContainsString('collector_url', $warning);
+        $this->assertStringContainsString('collector_endpoint', $warning);
         $this->assertStringContainsString('environment', $warning);
         $this->assertStringNotContainsString("'name'", $warning);
     }

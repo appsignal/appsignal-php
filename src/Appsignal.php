@@ -180,16 +180,16 @@ class Appsignal
             );
 
         $spanExporter = new SpanExporter(
-            new OtlpHttpTransportFactory()->create("$config->collectorUrl/v1/traces", 'application/x-protobuf')
+            new OtlpHttpTransportFactory()->create("$config->collectorEndpoint/v1/traces", 'application/x-protobuf')
         );
 
         $logExporter = new LogsExporter(
-            new OtlpHttpTransportFactory()->create("$config->collectorUrl/v1/logs", 'application/x-protobuf')
+            new OtlpHttpTransportFactory()->create("$config->collectorEndpoint/v1/logs", 'application/x-protobuf')
         );
 
         $reader = new ExportingReader(
             new MetricExporter(
-                new OtlpHttpTransportFactory()->create("$config->collectorUrl/v1/metrics", 'application/x-protobuf')
+                new OtlpHttpTransportFactory()->create("$config->collectorEndpoint/v1/metrics", 'application/x-protobuf')
             )
         );
 
