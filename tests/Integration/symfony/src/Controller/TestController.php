@@ -59,7 +59,7 @@ class TestController
     #[Route('/custom-data', methods: ['GET'])]
     public function customData(): Response
     {
-        Appsignal::addCustomData([
+        Appsignal::addAttributes([
             'string-attribute' => 'abcdef',
             'int-attribute' => 1234,
             'bool-attribute' => true,

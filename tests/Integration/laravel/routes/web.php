@@ -33,7 +33,7 @@ Route::get('/set-action', function () {
 });
 
 Route::get('/custom-data', function () {
-    Appsignal::addCustomData([
+    Appsignal::addAttributes([
         'string-attribute' => 'abcdef',
         'int-attribute' => 1234,
         'bool-attribute' => true,
@@ -77,3 +77,4 @@ Route::get('/counter', function () {
 
 Route::get('/error', [ErrorsController::class, 'show']);
 Route::get('/error-nested', [ErrorsController::class, 'nested']);
+Route::get('/error-handled', [ErrorsController::class, 'handled']);

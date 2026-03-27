@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Bar;
+use Appsignal\Appsignal;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Throwable;
 
 class ErrorsController
 {
@@ -18,6 +20,18 @@ class ErrorsController
     public function nested(): Response
     {
         Bar::nestedBaz();
+    }
+
+    #[Route('/error-handled', methods: ['GET'])]
+    public function handled(): Response
+    {
+        Appsignal::instrument('handled_error', function () {
+            try {
+                Bar::nestedBaz();
+            } catch (Throwable $e) {
+                Appsignal::setError($e);
+            }
+        });
     }
 
     protected function foo(): void
