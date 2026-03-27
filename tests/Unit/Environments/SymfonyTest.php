@@ -35,7 +35,7 @@ class SymfonyTest extends TestCase
 
         $this->assertEquals('Symfony App', $config->name);
         $this->assertEquals('symfony-test-key', $config->pushApiKey);
-        $this->assertEquals('https://collector-symfony.test', $config->collectorUrl);
+        $this->assertEquals('https://collector-symfony.test', $config->collectorEndpoint);
         $this->assertEquals('staging', $config->environment);
         $this->assertEquals(['stack_trace_formatter'], $config->disablePatches);
     }
