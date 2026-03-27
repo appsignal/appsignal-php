@@ -42,7 +42,26 @@ class ErrorSpanTest extends TestCase
 
         [$firstLine, $secondLine] = explode(PHP_EOL, $stacktrace);
         $this->assertEquals("Exception: Wrapper", $firstLine);
-        $this->assertEquals("app/Http/Controllers/ErrorsController.php(16): App\Bar::nestedBaz()", $secondLine);
+        $this->assertEquals("app/Http/Controllers/ErrorsController.php(18): App\Bar::nestedBaz()", $secondLine);
+        $this->assertStringContainsString('Caused by: Exception: Inner', $stacktrace);
+    }
+
+    public function test_handled_error(): void
+    {
+        $this->get('/error-handled');
+
+        [$span] = $this->getSpans();
+
+        $this->assertEquals('handled_error', $span->getName());
+        $this->assertEquals(StatusCode::STATUS_ERROR, $span->getStatus()->getCode());
+
+        [$event] = $span->getEvents();
+
+        $stacktrace = $event->getAttributes()->get('exception.stacktrace');
+
+        [$firstLine, $secondLine] = explode(PHP_EOL, $stacktrace);
+        $this->assertEquals("Exception: Wrapper", $firstLine);
+        $this->assertEquals("app/Http/Controllers/ErrorsController.php(25): App\Bar::nestedBaz()", $secondLine);
         $this->assertStringContainsString('Caused by: Exception: Inner', $stacktrace);
     }
 }

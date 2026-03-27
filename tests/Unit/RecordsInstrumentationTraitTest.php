@@ -101,7 +101,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
         $error = new RuntimeException('Something went wrong');
 
         AppsignalStub::instrument('error-recording-span', function () use ($error) {
-            AppsignalStub::recordError($error);
+            AppsignalStub::setError($error);
         });
 
         $span = $this->getLastSpan();
@@ -126,7 +126,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
     public function testAddCustomData(): void
     {
         AppsignalStub::instrument('some-action', function () {
-            AppsignalStub::addCustomData([
+            AppsignalStub::addAttributes([
                 'user_id' => 123456,
                 'request_id' => 'abc-123',
             ]);

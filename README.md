@@ -59,14 +59,14 @@ Appsignal::instrument('some_event', ['region' => 'eu'], fn() => sleep(1));
 // customize the name of the trace
 Appsignal::setAction('my action'),
 
-// add custom data to current span
-Appsignal::addCustomData([
+// add attributes to the current span
+Appsignal::addAttributes([
     'string-attribute' => 'abcdef',
     'int-attribute' => 1234,
     'bool-attribute' => true,
 ]);
 
-// add tags to current span
+// add tags to the current span
 Appsignal::addTags([
     'string-tag' => 'some value',
     'integer-tag' => 1234,
@@ -74,7 +74,7 @@ Appsignal::addTags([
 ]);
 
 // report a handled exception
-Appsignal::reportError($exception);
+Appsignal::setError($exception);
 
 // add metrics
 Appsignal::setGauge('my_gauge', 12);

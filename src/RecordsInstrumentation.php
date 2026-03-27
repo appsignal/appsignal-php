@@ -54,7 +54,7 @@ trait RecordsInstrumentation
         return new ActiveSpan(span: $span, scope: $scope);
     }
 
-    public static function recordError(Throwable $error): void
+    public static function setError(Throwable $error): void
     {
         $span = Span::getCurrent();
 
@@ -71,7 +71,7 @@ trait RecordsInstrumentation
     /**
      * @param array<string, mixed> $data
      */
-    public static function addCustomData(array $data): void
+    public static function addAttributes(array $data): void
     {
         $span = Span::getCurrent();
 

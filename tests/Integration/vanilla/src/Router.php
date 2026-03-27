@@ -28,7 +28,7 @@ class Router
             static::route($method, $uri);
             $span->setAttribute('http.response.status_code', 200);
         } catch (\Throwable $e) {
-            Appsignal::recordError($e);
+            Appsignal::setError($e);
             $span->recordException($e);
             $span->setStatus(StatusCode::STATUS_ERROR, $e->getMessage());
             $span->setAttribute('http.response.status_code', 500);
@@ -63,7 +63,7 @@ class Router
                 }
             ),
             '/set-action' => Appsignal::setAction('my action'),
-            '/custom-data' => Appsignal::addCustomData([
+            '/custom-data' => Appsignal::addAttributes([
                 'string-attribute' => 'abcdef',
                 'int-attribute' => 1234,
                 'bool-attribute' => true,
