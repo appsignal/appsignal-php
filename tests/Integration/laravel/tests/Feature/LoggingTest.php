@@ -25,6 +25,6 @@ class LoggingTest extends TestCase
 
         $this->assertEquals('info', $log->getSeverityText());
         $this->assertEquals('My log with attributes', $log->getBody());
-        $this->assertEquals(json_encode(["foo" => "bar"]), $log->getAttributes()->get('context'));
+        $this->assertEquals(["foo" => "bar"], $log->getAttributes()->get('context'));
     }
 }
