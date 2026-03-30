@@ -18,7 +18,7 @@ trait RecordsInstrumentation
      */
     public static function instrument(string $name, array|Closure $attributesOrClosure = [], ?Closure $closure = null): ActiveSpan
     {
-        $tracer = Globals::tracerProvider()->getTracer('vanilla-php-app');
+        $tracer = Globals::tracerProvider()->getTracer('appsignal-php');
 
         $span = $tracer->spanBuilder($name)
             ->setSpanKind(SpanKind::KIND_INTERNAL)
