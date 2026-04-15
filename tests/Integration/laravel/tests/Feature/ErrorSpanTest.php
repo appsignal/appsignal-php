@@ -23,7 +23,7 @@ class ErrorSpanTest extends TestCase
         $this->assertStringNotContainsString(
             "\tat ",
             $error->getAttributes()->get('exception.stacktrace'),
-            'StackTraceFormatterPatch isn\'t applied',
+            'AlignedStackTraceFormatterPatch isn\'t applied',
         );
     }
 
@@ -40,9 +40,10 @@ class ErrorSpanTest extends TestCase
 
         $stacktrace = $event->getAttributes()->get('exception.stacktrace');
 
-        [$firstLine, $secondLine] = explode(PHP_EOL, $stacktrace);
+        [$firstLine, $secondLine, $thirdLine] = explode(PHP_EOL, $stacktrace);
         $this->assertEquals("Exception: Wrapper", $firstLine);
-        $this->assertEquals("app/Http/Controllers/ErrorsController.php(18): App\Bar::nestedBaz()", $secondLine);
+        $this->assertEquals("app/Bar.php(20): App\Bar::nestedBaz()", $secondLine);
+        $this->assertEquals("app/Http/Controllers/ErrorsController.php(18): App\Http\Controllers\ErrorsController->nested()", $thirdLine);
         $this->assertStringContainsString('Caused by: Exception: Inner', $stacktrace);
     }
 
@@ -59,9 +60,10 @@ class ErrorSpanTest extends TestCase
 
         $stacktrace = $event->getAttributes()->get('exception.stacktrace');
 
-        [$firstLine, $secondLine] = explode(PHP_EOL, $stacktrace);
+        [$firstLine, $secondLine, $thirdLine] = explode(PHP_EOL, $stacktrace);
         $this->assertEquals("Exception: Wrapper", $firstLine);
-        $this->assertEquals("app/Http/Controllers/ErrorsController.php(25): App\Bar::nestedBaz()", $secondLine);
+        $this->assertEquals("app/Bar.php(20): App\Bar::nestedBaz()", $secondLine);
+        $this->assertEquals("app/Http/Controllers/ErrorsController.php(25): {closure:App\Http\Controllers\ErrorsController::handled():23}()", $thirdLine);
         $this->assertStringContainsString('Caused by: Exception: Inner', $stacktrace);
     }
 }
