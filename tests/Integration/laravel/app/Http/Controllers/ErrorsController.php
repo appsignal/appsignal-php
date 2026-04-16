@@ -20,7 +20,7 @@ class ErrorsController extends Controller
 
     public function handled(): void
     {
-        Appsignal::instrument('handled_error', function () {
+        Appsignal::instrument('handled_error', closure: function () {
             try {
                 Bar::nestedBaz();
             } catch (Throwable $e) {

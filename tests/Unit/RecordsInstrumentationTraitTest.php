@@ -7,6 +7,7 @@ use Appsignal\RecordsInstrumentation;
 use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
+use Opentelemetry\Proto\Trace\V1\Span\SpanKind as SpanSpanKind;
 use RuntimeException;
 
 class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
@@ -36,11 +37,22 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
         $this->assertEquals('/foo', $attributes['http.url']);
     }
 
+    public function testInsturmentWithSpanKind(): void
+    {
+        $span = AppsignalStub::instrument('should_be_server_span', spanKind: SpanKind::KIND_SERVER);
+        $span->end();
+
+        $this->assertCount(1, $this->spanStorage);
+
+        $this->assertEquals("should_be_server_span", $this->getLastSpan()->getName());
+        $this->assertEquals(SpanKind::KIND_SERVER, $this->getLastSpan()->getKind());
+    }
+
     public function testInstrumentWithClosure(): void
     {
         $called = false;
 
-        AppsignalStub::instrument('closure', function () use (&$called) {
+        AppsignalStub::instrument('closure', closure: function () use (&$called) {
             $called = true;
         });
 
@@ -54,7 +66,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
     {
         $called = false;
 
-        AppsignalStub::instrument('closure-and-attributes', ['key' => 'value'], function () use (&$called) {
+        AppsignalStub::instrument('closure-and-attributes', ['key' => 'value'], closure: function () use (&$called) {
             $called = true;
         });
 
@@ -75,7 +87,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
 
     public function testInstrumentClosureReceivesOTelSpan(): void
     {
-        AppsignalStub::instrument('span', function ($span) {
+        AppsignalStub::instrument('span', closure: function ($span) {
             $span->setAttribute('from-closure', 'yes');
             $this->assertInstanceOf(Span::class, $span);
         });
@@ -87,7 +99,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
     public function testInstrumentEndsSpanOnException(): void
     {
         try {
-            AppsignalStub::instrument('span-with-error', function () {
+            AppsignalStub::instrument('span-with-error', closure: function () {
                 throw new RuntimeException('test error');
             });
         } catch (RuntimeException) {
@@ -100,7 +112,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
     {
         $error = new RuntimeException('Something went wrong');
 
-        AppsignalStub::instrument('error-recording-span', function () use ($error) {
+        AppsignalStub::instrument('error-recording-span', closure: function () use ($error) {
             AppsignalStub::setError($error);
         });
 
@@ -115,7 +127,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
 
     public function testSetAction(): void
     {
-        AppsignalStub::instrument('some-action', function () {
+        AppsignalStub::instrument('some-action', closure: function () {
             AppsignalStub::setAction('UsersController::show');
         });
 
@@ -125,7 +137,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
 
     public function testAddCustomData(): void
     {
-        AppsignalStub::instrument('some-action', function () {
+        AppsignalStub::instrument('some-action', closure: function () {
             AppsignalStub::addAttributes([
                 'user_id' => 123456,
                 'request_id' => 'abc-123',
@@ -139,7 +151,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
 
     public function testAddTags(): void
     {
-        AppsignalStub::instrument('tags-span', function () {
+        AppsignalStub::instrument('tags-span', closure: function () {
             AppsignalStub::addTags([
                 'environment' => 'production',
                 'region' => 'eu-west-1',

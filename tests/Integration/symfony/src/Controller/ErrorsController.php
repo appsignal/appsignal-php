@@ -25,7 +25,7 @@ class ErrorsController
     #[Route('/error-handled', methods: ['GET'])]
     public function handled(): Response
     {
-        Appsignal::instrument('handled_error', function () {
+        Appsignal::instrument('handled_error', closure: function () {
             try {
                 Bar::nestedBaz();
             } catch (Throwable $e) {
