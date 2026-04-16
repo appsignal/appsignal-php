@@ -6,7 +6,7 @@ use Appsignal\Environments\Environment;
 use Appsignal\Environments\Laravel;
 use Appsignal\Environments\Symfony;
 use Appsignal\Environments\Vanilla;
-use Appsignal\Patches\StackTraceFormatterPatch;
+use Appsignal\Patches\AlignedStackTraceFormatterPatch;
 use Dotenv\Dotenv;
 use OpenTelemetry\API\Trace\Propagation\TraceContextPropagator;
 use OpenTelemetry\Contrib\Otlp\MetricExporter;
@@ -82,7 +82,7 @@ class Appsignal
         $disabledPatches = $this->getDisabledPatches($config);
 
         if (!in_array('stack_trace_formatter', $disabledPatches)) {
-            (new StackTraceFormatterPatch(appRoot: $this->basePath))();
+            (new AlignedStackTraceFormatterPatch(appRoot: $this->basePath))();
         }
     }
 

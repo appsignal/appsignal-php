@@ -23,7 +23,7 @@ class ErrorSpanTest extends TestCase
         $this->assertStringNotContainsString(
             "\tat ",
             $error->getAttributes()->get('exception.stacktrace'),
-            'StackTraceFormatterPatch isn\'t applied',
+            'AlignedStackTraceFormatterPatch isn\'t applied',
         );
     }
 
@@ -40,9 +40,10 @@ class ErrorSpanTest extends TestCase
 
         $stacktrace = $event->getAttributes()->get('exception.stacktrace');
 
-        [$firstLine, $secondLine] = explode(PHP_EOL, $stacktrace);
+        [$firstLine, $secondLine, $thirdLine] = explode(PHP_EOL, $stacktrace);
         $this->assertEquals("Exception: Wrapper", $firstLine);
-        $this->assertEquals("src/ErrorsController.php(14): App\Bar::nestedBaz()", $secondLine);
+        $this->assertEquals("src/Bar.php(20): App\Bar::nestedBaz()", $secondLine);
+        $this->assertEquals("src/ErrorsController.php(14): App\ErrorsController->nested()", $thirdLine);
         $this->assertStringContainsString('Caused by: Exception: Inner', $stacktrace);
     }
 }
