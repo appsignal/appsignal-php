@@ -52,12 +52,12 @@ class Router
                     'int-attribute' => 1234,
                     'bool-attribute' => true,
                 ],
-                function () {}
+                closure: function () {}
             ),
             '/instrument-nested' => Appsignal::instrument(
                 'parent',
                 ['msg' => 'from parent span'],
-                function () {
+                closure: function () {
                     $span = Appsignal::instrument('child', ['msg' => 'from child span']);
                     $span->end();
                 }

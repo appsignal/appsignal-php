@@ -14,37 +14,30 @@ use Throwable;
 trait RecordsInstrumentation
 {
     /**
-     * @param array<string, mixed>|Closure $attributesOrClosure
+     * @param array<string, mixed> $attributes
+     * @param SpanKind::KIND_* | null $spanKind
      */
-    public static function instrument(string $name, array|Closure $attributesOrClosure = [], ?Closure $closure = null): ActiveSpan
-    {
+    public static function instrument(
+        string $name,
+        array $attributes = [],
+        ?int $spanKind = null,
+        ?Closure $closure = null,
+    ): ActiveSpan {
         $tracer = Globals::tracerProvider()->getTracer('appsignal-php');
 
         $span = $tracer->spanBuilder($name)
-            ->setSpanKind(SpanKind::KIND_INTERNAL)
+            ->setSpanKind($spanKind ?? SpanKind::KIND_INTERNAL)
             ->startSpan();
 
         $scope = $span->activate();
 
-        if (is_array($attributesOrClosure)) {
-            foreach ($attributesOrClosure as $key => $value) {
-                $span->setAttribute($key, $value);
-            }
+        foreach ($attributes as $key => $value) {
+            $span->setAttribute($key, $value);
         }
 
-        $cb = null;
-
-        if (is_callable($attributesOrClosure)) {
-            $cb = $attributesOrClosure;
-        }
-
-        if (is_callable($closure)) {
-            $cb = $closure;
-        }
-
-        if (!is_null($cb)) {
+        if ($closure !== null) {
             try {
-                $cb($span);
+                $closure($span);
             } finally {
                 $span->end();
                 $scope->detach();

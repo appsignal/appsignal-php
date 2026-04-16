@@ -51,10 +51,10 @@ For more ways to install `opentelemetry` extension (pie, pickle, Docker), see th
 use Appsignal\Appsignal;
 
 // add a custom instrumentation span to the current trace
-Appsignal::instrument('some_event', fn() => sleep(1));
+Appsignal::instrument('some_event', closure: fn() => sleep(1));
 
 // add a custom instrumentation span to the current trace with data
-Appsignal::instrument('some_event', ['region' => 'eu'], fn() => sleep(1));
+Appsignal::instrument('some_event', ['region' => 'eu'], closure: fn() => sleep(1));
 
 // customize the name of the trace
 Appsignal::setAction('my action'),
