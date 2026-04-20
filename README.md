@@ -9,7 +9,7 @@ The AppSignal for PHP library.
 Install the latest version of AppSignal with:
 
 ```bash
-composer require appsignal/appsignal-php`
+composer require appsignal/appsignal-php
 ```
 
 > [!IMPORTANT]
