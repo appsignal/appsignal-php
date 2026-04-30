@@ -85,7 +85,8 @@ class ConfigTest extends TestCase
         $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'] = 'https://collector.test';
         $_ENV['APPSIGNAL_DISABLE_PATCHES'] = 'foo,bar,baz';
 
-        $config = Config::tryFromFile(__DIR__ . '/../stubs/laravel/config/appsignal_partial.php');
+        $config = Config::tryFromFile(__DIR__ . '/../stubs/laravel/config/appsignal_partial.php')
+            ->applySystemEnvVariables();
 
         $this->assertEquals('Partial App', $config->name);
         $this->assertEquals('fake-key', $config->pushApiKey);
@@ -100,6 +101,7 @@ class ConfigTest extends TestCase
         $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'] = 'https://collector.test';
 
         $config = new Config();
+        $config->applySystemEnvVariables();
 
         $this->assertNull($config->name);
         $this->assertNull($config->environment);
@@ -171,6 +173,7 @@ class ConfigTest extends TestCase
 
     protected function assertConfigIsEmpty(Config $config): void
     {
+        $this->assertFalse($config->active);
         $this->assertNull($config->name);
         $this->assertNull($config->environment);
         $this->assertNull($config->pushApiKey);

@@ -12,19 +12,13 @@ class Config
      * @param string[]|null $disablePatches
      */
     public function __construct(
+        public ?bool $active = false,
         public ?string $name = null,
         public ?string $environment = null,
         public ?string $pushApiKey = null,
         public ?string $collectorEndpoint = null,
-        public ?array $disablePatches = null,
-    ) {
-        $this->name ??= $_ENV['APPSIGNAL_APP_NAME'] ?? $_ENV['APP_NAME'] ?? null;
-        $this->environment ??= $_ENV['APPSIGNAL_APP_ENV'] ?? $_ENV['APP_ENV'] ?? null;
-        $this->pushApiKey ??= $_ENV['APPSIGNAL_PUSH_API_KEY'] ?? null;
-        $this->collectorEndpoint ??= $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'] ?? null;
-        $disablePatchesFromEnv = $_ENV['APPSIGNAL_DISABLE_PATCHES'] ?? null;
-        $this->disablePatches ??= $disablePatchesFromEnv ? explode(",", $disablePatchesFromEnv) : [];
-    }
+        public ?array $disablePatches = [],
+    ) {}
 
     public function isValid(): bool
     {
@@ -57,6 +51,33 @@ class Config
         return $missing;
     }
 
+    public function applySystemEnvVariables(): self
+    {
+        if (isset($_ENV['APPSIGNAL_ACTIVE'])) {
+            $this->active = filter_var($_ENV['APPSIGNAL_ACTIVE'], FILTER_VALIDATE_BOOL);
+        }
+        if (isset($_ENV['APPSIGNAL_APP_NAME'])) {
+            $this->name = $_ENV['APPSIGNAL_APP_NAME'];
+        } elseif (isset($_ENV['APP_NAME'])) {
+            $this->name = $_ENV['APP_NAME'];
+        }
+        if (isset($_ENV['APPSIGNAL_APP_ENV'])) {
+            $this->environment = $_ENV['APPSIGNAL_APP_ENV'];
+        } elseif (isset($_ENV['APP_ENV'])) {
+            $this->environment = $_ENV['APP_ENV'];
+        }
+        if (isset($_ENV['APPSIGNAL_PUSH_API_KEY'])) {
+            $this->pushApiKey = $_ENV['APPSIGNAL_PUSH_API_KEY'];
+        }
+        if (isset($_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'])) {
+            $this->collectorEndpoint = $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'];
+        }
+        if (isset($_ENV['APPSIGNAL_DISABLE_PATCHES'])) {
+            $this->disablePatches = explode(",", $_ENV['APPSIGNAL_DISABLE_PATCHES']);
+        }
+        return $this;
+    }
+
     /**
      * Load config from a file that returns an array
      */
@@ -75,11 +96,12 @@ class Config
             $disabledPatches = $values['disable_patches'] ?? null;
 
             return new self(
+                active: $values['active'] ?? null,
                 name: $values['name'] ?? null,
                 environment: $values['environment'] ?? null,
                 pushApiKey: $values['push_api_key'] ?? null,
                 collectorEndpoint: $values['collector_endpoint'] ?? null,
-                disablePatches: is_array($disabledPatches) ? $disabledPatches : null,
+                disablePatches: is_array($disabledPatches) ? $disabledPatches : [],
             );
         } catch (Throwable $e) {
             return new self();
