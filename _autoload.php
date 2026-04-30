@@ -2,14 +2,9 @@
 
 use Appsignal\Appsignal;
 
-// Skip for CLI unless it's artisan or integration tests
-if (PHP_SAPI === 'cli' && !isset($_ENV['LARAVEL_ARTISAN']) && !isset($_ENV['_APPSIGNAL_TEST'])) {
-    return;
-}
+$recognizedScripts = ['artisan', 'bin/console'];
 
-if (!Appsignal::extensionIsLoaded()) {
-    trigger_error('The "opentelemetry" extension must be loaded to use Appsignal', E_USER_WARNING);
-
+if (PHP_SAPI == 'cli' && !array_any($recognizedScripts, fn($s) => str_contains($_SERVER['SCRIPT_NAME'] ?? "", $s)) && !isset($_ENV['_APPSIGNAL_TEST'])) {
     return;
 }
 
