@@ -13,10 +13,16 @@ class AppsignalTest extends TestCase
 {
     use CapturesWarnings;
 
+    protected function setUp(): void
+    {
+        $_ENV['_APPSIGNAL_TEST'] = true;
+    }
+
     protected function tearDown(): void
     {
         Appsignal::setInstance(null);
         $this->cleanupFixtures();
+        unset($_ENV['_APPSIGNAL_TEST']);
     }
 
     public function testClassIsSingleton(): void
@@ -55,7 +61,7 @@ class AppsignalTest extends TestCase
         $this->assertNull($appSignal->getBasePath());
     }
 
-    public function testExtensionIsLoadedReturnsBool(): void
+    public function testExtensionIsLoaded(): void
     {
         $result = Appsignal::extensionIsLoaded();
 
@@ -105,6 +111,67 @@ class AppsignalTest extends TestCase
         $appSignal->loadEnv();
 
         $this->assertNull($appSignal->getBasePath());
+    }
+
+    #[Group('no-extension')]
+    public function testDoesNotInitializeWithoutExtension(): void
+    {
+        $dir = $this->createTempDir();
+        file_put_contents($dir . '/.env', $this->validEnv());
+
+        $appsignal = Appsignal::getInstance();
+        $appsignal->setBasePath($dir);
+        $appsignal->setFramework('vanilla');
+
+        $this->assertFalse(Appsignal::extensionIsLoaded());
+
+        $warning = $this->callAndCaptureWarnings(function () use ($appsignal) {
+            $appsignal->initialize();
+        });
+
+        $this->assertEquals('Appsignal: the "opentelemetry" PHP extension is not loaded. Appsignal will not be initialized.', $warning);
+
+        $this->assertFalse($appsignal->isInitialized());
+    }
+
+    #[RunInSeparateProcess]
+    public function testInitializesWithExtension(): void
+    {
+        $dir = $this->createTempDir();
+        file_put_contents($dir . '/.env', $this->validEnv());
+
+        $appsignal = Appsignal::getInstance();
+        $appsignal->setBasePath($dir);
+        $appsignal->setFramework('vanilla');
+
+        $this->assertTrue(Appsignal::extensionIsLoaded());
+
+        $warning = $this->callAndCaptureWarnings(function () use ($appsignal) {
+            $appsignal->initialize();
+        });
+
+        $this->assertEquals("", $warning);
+        $this->assertTrue($appsignal->isInitialized());
+    }
+
+    #[RunInSeparateProcess]
+    public function testDoesNotInitializeIfNotActive(): void
+    {
+        $dir = $this->createTempDir();
+        file_put_contents($dir . '/.env', $this->validEnv(active: false));
+
+        $appsignal = Appsignal::getInstance();
+        $appsignal->setBasePath($dir);
+        $appsignal->setFramework('vanilla');
+
+        $this->assertTrue(Appsignal::extensionIsLoaded());
+
+        $warning = $this->callAndCaptureWarnings(function () use ($appsignal) {
+            $appsignal->initialize();
+        });
+
+        $this->assertEquals("", $warning);
+        $this->assertFalse($appsignal->isInitialized());
     }
 
     #[RunInSeparateProcess]
@@ -214,5 +281,12 @@ class AppsignalTest extends TestCase
         }
 
         $this->fixtures = [];
+    }
+
+    protected function validEnv(bool $active = true): string
+    {
+        $isActive = $active ? 'true' : 'false';
+
+        return "APPSIGNAL_PUSH_API_KEY=test_key\nAPPSIGNAL_COLLECTOR_ENDPOINT=http://localhost:8099\nAPPSIGNAL_APP_NAME=Foo\nAPPSIGNAL_APP_ENV=production\nAPPSIGNAL_ACTIVE=$isActive";
     }
 }

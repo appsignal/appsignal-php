@@ -32,7 +32,6 @@ class Appsignal
     use RecordsMetrics;
 
     protected static ?self $instance = null;
-
     protected bool $initialized = false;
     protected ?string $basePath = null;
     protected ?string $framework = null;
@@ -48,6 +47,11 @@ class Appsignal
         static::$instance = $instance;
     }
 
+    public function isInitialized(): bool
+    {
+        return $this->initialized;
+    }
+
     public function getBasePath(): ?string
     {
         return $this->basePath;
@@ -58,21 +62,28 @@ class Appsignal
         $this->basePath = $path;
     }
 
+    public function setFramework(?string $framework): void
+    {
+        $this->framework = $framework;
+    }
+
     protected function detectEnvironment(): ?Environment
     {
-        ["root" => $basePath, "env" => $framework] = $this->findRoot();
+        if (!$this->basePath || !$this->framework) {
+            ["root" => $basePath, "env" => $framework] = $this->findRoot();
 
-        $this->basePath = $basePath;
-        $this->framework = $framework;
+            $this->setBasePath($basePath);
+            $this->setFramework($framework);
+        }
 
-        if ($framework == 'laravel') {
-            return new Laravel($basePath);
+        if ($this->framework == 'laravel') {
+            return new Laravel($this->basePath);
         }
-        if ($framework == 'symfony') {
-            return new Symfony($basePath);
+        if ($this->framework == 'symfony') {
+            return new Symfony($this->basePath);
         }
-        if ($framework == 'vanilla') {
-            return new Vanilla($basePath);
+        if ($this->framework == 'vanilla') {
+            return new Vanilla($this->basePath);
         }
         return null;
     }
@@ -124,6 +135,11 @@ class Appsignal
         $environment = $this->detectEnvironment();
 
         if (is_null($environment)) {
+            trigger_error(
+                'Appsignal: could not detect application environment. Appsignal will not be initialized.',
+                E_USER_WARNING,
+            );
+
             return;
         }
 
@@ -137,10 +153,14 @@ class Appsignal
             trigger_error(
                 'Appsignal: configuration is invalid. Missing required fields: '
                     . implode(', ', $missing)
-                    . '. Appsignal will not be initialized.',
+                    . '.',
                 E_USER_WARNING,
             );
 
+            return;
+        }
+
+        if (!$config->active) {
             return;
         }
 
@@ -148,18 +168,17 @@ class Appsignal
 
         $environment->applyPatches();
 
-        if (isset($_ENV['_APPSIGNAL_TEST'])) {
-            $this->initialized = true;
-
-            return;
-        }
-
         $this->initializeOpenTelemetry($config);
+        $this->initialized = true;
     }
 
 
     protected function initializeOpenTelemetry(?Config $config = null): void
     {
+        if (isset($_ENV['_APPSIGNAL_TEST'])) {
+            return;
+        }
+
         $detectedFramework = $this->framework ?? "PHP";
         $serviceName = ucfirst($detectedFramework) . " Service";
 
@@ -221,8 +240,6 @@ class Appsignal
             ->setPropagator(TraceContextPropagator::getInstance())
             ->setAutoShutdown(true)
             ->buildAndRegisterGlobal();
-
-        $this->initialized = true;
     }
 
     public function loadEnv(): bool

@@ -20,6 +20,7 @@ class Symfony implements Environment
 
     public function getConfig(): Config
     {
-        return Config::tryFromFile($this->basePath . Config::CONFIG_PATH);
+        return Config::tryFromFile($this->basePath . Config::CONFIG_PATH)
+            ->applySystemEnvVariables();
     }
 }

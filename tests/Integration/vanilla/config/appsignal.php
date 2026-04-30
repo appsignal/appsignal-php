@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'active' => true,
     'name' => 'IntegrationTest',
     'environment' => 'test',
     'push_api_key' => 'test-key',
