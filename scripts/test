@@ -2,4 +2,4 @@
 
 set -eu
 
-"$(dirname "$0")/call_composer" test
+"$(dirname "$0")/call_composer" test "$@"
