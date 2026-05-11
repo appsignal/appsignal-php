@@ -28,7 +28,7 @@ class LaravelTest extends TestCase
 
     public function testGetConfigLoadsFromConfigFile(): void
     {
-        $stubPath = __DIR__ . '/../../stubs/laravel';
+        $stubPath = __DIR__ . '/../../Stubs/laravel';
 
         $laravel = new Laravel($stubPath);
         $config = $laravel->getConfig();

@@ -28,7 +28,7 @@ class SymfonyTest extends TestCase
 
     public function testGetConfigLoadsFromConfigFile(): void
     {
-        $stubPath = __DIR__ . '/../../stubs/symfony';
+        $stubPath = __DIR__ . '/../../Stubs/symfony';
 
         $symfony = new Symfony($stubPath);
         $config = $symfony->getConfig();

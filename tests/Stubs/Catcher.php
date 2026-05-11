@@ -1,6 +1,6 @@
 <?php
 
-namespace Appsignal\Tests\stubs;
+namespace Appsignal\Tests\Stubs;
 
 use Throwable;
 
