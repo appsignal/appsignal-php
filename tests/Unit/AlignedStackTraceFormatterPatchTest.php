@@ -3,8 +3,8 @@
 namespace Appsignal\Tests\Unit;
 
 use Appsignal\Patches\AlignedStackTraceFormatterPatch;
-use Appsignal\Tests\stubs\BadClass;
-use Appsignal\Tests\stubs\Catcher;
+use Appsignal\Tests\Stubs\BadClass;
+use Appsignal\Tests\Stubs\Catcher;
 use OpenTelemetry\SDK\Common\Exception\StackTraceFormatter;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +21,7 @@ class AlignedStackTraceFormatterPatchTest extends TestCase
         $result = StackTraceFormatter::format($exception);
         [$first_line, $second_line] = explode(PHP_EOL, $result);
 
-        $this->assertEquals("Appsignal\Tests\stubs\RootCauseException: Root cause!", $first_line);
+        $this->assertEquals("Appsignal\Tests\Stubs\RootCauseException: Root cause!", $first_line);
 
         // Second line should be where the throw happened, with "throw()"
         $this->assertStringContainsString('throw()', $second_line);
@@ -38,13 +38,13 @@ class AlignedStackTraceFormatterPatchTest extends TestCase
         $result = StackTraceFormatter::format($exception);
         [$first, $second, $third] = explode(PHP_EOL, $result);
 
-        $this->assertStringContainsString("Appsignal\Tests\stubs\RootCauseException: Root cause!", $first);
+        $this->assertStringContainsString("Appsignal\Tests\Stubs\RootCauseException: Root cause!", $first);
 
         $this->assertStringContainsString("BadClass.php(11):", $second);
-        $this->assertStringContainsString("Appsignal\Tests\stubs\BadClass::throw()", $second);
+        $this->assertStringContainsString("Appsignal\Tests\Stubs\BadClass::throw()", $second);
 
         $this->assertStringContainsString("Catcher.php(15):", $third);
-        $this->assertStringContainsString("Appsignal\Tests\stubs\Catcher::callAndCapture()", $third);
+        $this->assertStringContainsString("Appsignal\Tests\Stubs\Catcher::callAndCapture()", $third);
     }
 
     #[RunInSeparateProcess]
@@ -77,8 +77,8 @@ class AlignedStackTraceFormatterPatchTest extends TestCase
         $result = StackTraceFormatter::format($exception);
         [, $second, $third] = explode(PHP_EOL, $result);
 
-        $this->assertStringContainsString("Appsignal\Tests\stubs\BadClass", $second);
-        $this->assertStringContainsString("Appsignal\Tests\stubs\Catcher", $third);
+        $this->assertStringContainsString("Appsignal\Tests\Stubs\BadClass", $second);
+        $this->assertStringContainsString("Appsignal\Tests\Stubs\Catcher", $third);
     }
 
     #[RunInSeparateProcess]
@@ -92,7 +92,7 @@ class AlignedStackTraceFormatterPatchTest extends TestCase
         $result = StackTraceFormatter::format($exception);
         [,, $third] = explode(PHP_EOL, $result);
 
-        $this->assertStringContainsString("BadClass.php(30): {closure:Appsignal\Tests\stubs\BadClass::throwInClosure():29}()", $third);
+        $this->assertStringContainsString("BadClass.php(30): {closure:Appsignal\Tests\Stubs\BadClass::throwInClosure():29}()", $third);
     }
 
     #[RunInSeparateProcess]
@@ -155,9 +155,9 @@ class AlignedStackTraceFormatterPatchTest extends TestCase
 
         $result = StackTraceFormatter::format($exception);
 
-        $this->assertStringStartsWith("Appsignal\Tests\stubs\OuterWrapperException: Outer", $result);
-        $this->assertStringContainsString("Caused by: Appsignal\Tests\stubs\MiddleWrapperException: Middle", $result);
-        $this->assertStringContainsString("Caused by: Appsignal\Tests\stubs\InnerWrapperException: Inner", $result);
+        $this->assertStringStartsWith("Appsignal\Tests\Stubs\OuterWrapperException: Outer", $result);
+        $this->assertStringContainsString("Caused by: Appsignal\Tests\Stubs\MiddleWrapperException: Middle", $result);
+        $this->assertStringContainsString("Caused by: Appsignal\Tests\Stubs\InnerWrapperException: Inner", $result);
     }
 
     #[RunInSeparateProcess]

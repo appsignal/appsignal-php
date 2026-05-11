@@ -1,6 +1,6 @@
 <?php
 
-namespace Appsignal\Tests\unit;
+namespace Appsignal\Tests\Unit;
 
 use Appsignal\Config;
 use PHPUnit\Framework\TestCase;
@@ -56,7 +56,7 @@ class ConfigTest extends TestCase
 
     public function testTryFromFileLoadsConfig(): void
     {
-        $config = Config::tryFromFile(__DIR__ . '/../stubs/laravel/config/appsignal.php');
+        $config = Config::tryFromFile(__DIR__ . '/../Stubs/laravel/config/appsignal.php');
 
         $this->assertEquals('Laravel App', $config->name);
         $this->assertEquals('staging', $config->environment);
@@ -74,7 +74,7 @@ class ConfigTest extends TestCase
 
     public function testFromFileReturnsEmptyConfigForNonArrayReturn(): void
     {
-        $config = Config::tryFromFile(__DIR__ . '/../stubs/invalid_config.php');
+        $config = Config::tryFromFile(__DIR__ . '/../Stubs/invalid_config.php');
 
         $this->assertConfigIsEmpty($config);
     }
@@ -85,7 +85,7 @@ class ConfigTest extends TestCase
         $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'] = 'https://collector.test';
         $_ENV['APPSIGNAL_DISABLE_PATCHES'] = 'foo,bar,baz';
 
-        $config = Config::tryFromFile(__DIR__ . '/../stubs/laravel/config/appsignal_partial.php')
+        $config = Config::tryFromFile(__DIR__ . '/../Stubs/laravel/config/appsignal_partial.php')
             ->applySystemEnvVariables();
 
         $this->assertEquals('Partial App', $config->name);
@@ -131,7 +131,7 @@ class ConfigTest extends TestCase
 
     public function testWithInvalidDisablePatchesConfig(): void
     {
-        $config = Config::tryFromFile(__DIR__ . '/../stubs/laravel/config/appsignal_invalid.php');
+        $config = Config::tryFromFile(__DIR__ . '/../Stubs/laravel/config/appsignal_invalid.php');
 
         $this->assertEquals([], $config->disablePatches);
     }
