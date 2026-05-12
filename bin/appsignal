@@ -8,6 +8,7 @@ PACKAGE_DIR="${APPSIGNAL_PACKAGE_DIR:-$(dirname "$SCRIPT_DIR")}"
 # Package is located in vendor/appsignal/appsignal-php directory
 # and the project root is three levels up from the package directory.
 PROJECT_ROOT="${APPSIGNAL_PROJECT_ROOT:-$(dirname "$(dirname "$(dirname "$PACKAGE_DIR")")")}"
+AUTOLOAD="${APPSIGNAL_AUTOLOAD_PATH:-$PROJECT_ROOT/vendor/autoload.php}"
 
 case "${1:-}" in
 	init)
@@ -16,7 +17,6 @@ case "${1:-}" in
 		FRAMEWORK=""
 		# Detect framework
 		if [ -f "$PROJECT_ROOT/symfony.lock" ]; then
-			TARGET_DIR="$TARGET_DIR/packages"
 			FRAMEWORK="symfony"
 		elif [ -f "$PROJECT_ROOT/artisan" ] && [ -d "$PROJECT_ROOT/bootstrap" ]; then
 			TEMPLATE="$PACKAGE_DIR/config-stubs/appsignal.laravel.php"
@@ -42,10 +42,16 @@ case "${1:-}" in
 			composer --working-dir="$PROJECT_ROOT" require open-telemetry/opentelemetry-auto-symfony
 		fi
 		;;
+	validate)
+		CONFIG_PATH="$PROJECT_ROOT/config/appsignal.php"
+
+		php "${PACKAGE_DIR}/bin/validate.php" "$PROJECT_ROOT" "$CONFIG_PATH" "$AUTOLOAD"
+		;;
 	*)
 		echo "Usage: appsignal <command>"
 		echo ""
 		echo "Commands:"
-		echo "  init    Scaffold the Appsignal config file and add auto-instrumentations"
+		echo "  init        Scaffold Appsignal config file and add auto-instrumentations"
+		echo "  validate    Check if Appsignal config is valid"
 		;;
 esac

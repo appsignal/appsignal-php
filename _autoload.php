@@ -8,4 +8,8 @@ if (PHP_SAPI == 'cli' && !array_any($recognizedScripts, fn($s) => str_contains($
     return;
 }
 
+if (isset($_SERVER['COMPOSER_BINARY'])) {
+    return;
+}
+
 Appsignal::getInstance()->initialize();
