@@ -28,7 +28,7 @@ class AutoloadTest extends TestCase
     #[RunInSeparateProcess]
     public function testAutoloadForLaravelArtisan(): void
     {
-        unset($_ENV['_APPSIGNAL_TEST']);
+        unset($_ENV['_APPSIGNAL_TEST'], $_SERVER['COMPOSER_BINARY']);
         $_SERVER['SCRIPT_NAME'] = 'artisan';
 
         /** @var \Mockery\MockInterface&Appsignal $spy */
@@ -44,7 +44,7 @@ class AutoloadTest extends TestCase
     #[RunInSeparateProcess]
     public function testAutoloadForSymfonyConsole(): void
     {
-        unset($_ENV['_APPSIGNAL_TEST']);
+        unset($_ENV['_APPSIGNAL_TEST'], $_SERVER['COMPOSER_BINARY']);
         $_SERVER['SCRIPT_NAME'] = 'bin/console';
 
         /** @var \Mockery\MockInterface&Appsignal $spy */
@@ -55,6 +55,22 @@ class AutoloadTest extends TestCase
 
         $spy->shouldHaveReceived('initialize')
             ->once(); // @phpstan-ignore method.notFound
+    }
+
+    #[RunInSeparateProcess]
+    public function testDoesNotAutoloadWhenComposerBinaryIsSet(): void
+    {
+        unset($_ENV['_APPSIGNAL_TEST']);
+        $_SERVER['SCRIPT_NAME'] = 'artisan';
+        $_SERVER['COMPOSER_BINARY'] = '/usr/bin/composer';
+
+        /** @var \Mockery\MockInterface&Appsignal $spy */
+        $spy = Mockery::spy(Appsignal::class);
+        Appsignal::setInstance($spy);
+
+        require __DIR__ . '/../../_autoload.php';
+
+        $spy->shouldNotHaveReceived('initialize');
     }
 
     #[RunInSeparateProcess]
