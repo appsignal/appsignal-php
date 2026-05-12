@@ -4,16 +4,11 @@ The AppSignal for PHP library.
 
 ![Tests](https://github.com/appsignal/appsignal-php/actions/workflows/ci.yml/badge.svg)
 
-## Installation
+## Requirements
 
-Install the latest version of AppSignal with:
-
-```bash
-composer require appsignal/appsignal-php
-```
-
-> [!IMPORTANT]
-> This package depends on `opentelemetry` PHP extension. Make sure you have it installed.
+This package requires:
+- PHP version >= `8.4`
+- `opentelemetry` extension
 
 ## Installing `opentelemetry` PHP extension
 
@@ -41,11 +36,21 @@ extension=opentelemetry.so
 
 For more ways to install `opentelemetry` extension (pie, pickle, Docker), see the [Installing the OpenTelemetry extension](https://docs.appsignal.com/php/installation.html#install-the-opentelemetry-php-extension) section in AppSignal Docs.
 
-## Basic usage
+## Installation
 
-> [!TIP]
-> For Laravel application auto-instrumentation install `open-telemetry/opentelemetry-auto-laravel` package.
-> For Symfony application auto-instrumentation install `open-telemetry/opentelemetry-auto-symfony` package.
+Install the latest version of AppSignal with:
+
+```bash
+composer require appsignal/appsignal-php
+```
+
+After that, run:
+```bach
+vendor/bin/appsignal init
+```
+This command will scaffold a config file in `config/appsignal.php` and install auto-instrumentations for your application framework (Laravel or Symfony).
+
+## Basic usage
 
 ```php
 use Appsignal\Appsignal;
