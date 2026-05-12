@@ -36,12 +36,14 @@ class AppsignalScriptTest extends TestCase
         mkdir("$projectDir/bootstrap");
         touch("$projectDir/artisan");
 
-        $output = $this->runScript('init', $projectDir);
+        $fakeBin = $this->createComposerStub($projectDir);
+        $output = $this->runScript('init', $projectDir, $fakeBin);
 
         $target = "$projectDir/config/appsignal.php";
         $this->assertStringContainsString("Appsignal config file created at $target", $output);
         $this->assertFileExists($target);
         $this->assertFileEquals(self::$packageDir . '/config-stubs/appsignal.laravel.php', $target);
+        $this->assertComposerCalled($projectDir, "--working-dir=$projectDir require open-telemetry/opentelemetry-auto-laravel");
     }
 
     public function testInitInSymfony(): void
@@ -50,12 +52,24 @@ class AppsignalScriptTest extends TestCase
         // this file is used to detect environment
         touch("$projectDir/symfony.lock");
 
-        $output = $this->runScript('init', $projectDir);
+        $fakeBin = $this->createComposerStub($projectDir);
+        $output = $this->runScript('init', $projectDir, $fakeBin);
 
         $target = "$projectDir/config/packages/appsignal.php";
         $this->assertStringContainsString("Appsignal config file created at $target", $output);
         $this->assertFileExists($target);
         $this->assertFileEquals(self::$packageDir . '/config-stubs/appsignal.php', $target);
+        $this->assertComposerCalled($projectDir, "--working-dir=$projectDir require open-telemetry/opentelemetry-auto-symfony");
+    }
+
+    public function testInitInVanillaDoesNotCallComposer(): void
+    {
+        $projectDir = $this->createProjectDir();
+
+        $fakeBin = $this->createComposerStub($projectDir);
+        $this->runScript('init', $projectDir, $fakeBin);
+
+        $this->assertFileDoesNotExist("$projectDir/composer-calls");
     }
 
     public function testInitSkipsIfConfigAlreadyExists(): void
@@ -95,7 +109,7 @@ class AppsignalScriptTest extends TestCase
         $this->assertFileExists("$projectDir/config/appsignal.php");
     }
 
-    protected function runScript(string $command = '', ?string $projectDir = null): string
+    protected function runScript(string $command = '', ?string $projectDir = null, ?string $fakeBinDir = null): string
     {
         $script = self::$packageDir . '/bin/appsignal';
         $env = '';
@@ -105,9 +119,30 @@ class AppsignalScriptTest extends TestCase
                 . " APPSIGNAL_PACKAGE_DIR=" . escapeshellarg(self::$packageDir);
         }
 
+        if ($fakeBinDir !== null) {
+            $env .= " PATH=" . escapeshellarg($fakeBinDir) . ':"$PATH"';
+        }
+
         $fullCommand = "$env bash " . escapeshellarg($script) . " $command 2>&1";
 
         return shell_exec($fullCommand) ?? '';
+    }
+
+    protected function createComposerStub(string $projectDir): string
+    {
+        $binDir = "$projectDir/fake-bin";
+        mkdir($binDir);
+        $callsFile = escapeshellarg("$projectDir/composer-calls");
+        file_put_contents("$binDir/composer", "#!/bin/sh\necho \"\$@\" >> $callsFile\n");
+        chmod("$binDir/composer", 0o755);
+        return $binDir;
+    }
+
+    protected function assertComposerCalled(string $projectDir, string $expectedArgs): void
+    {
+        $callsFile = "$projectDir/composer-calls";
+        $this->assertFileExists($callsFile, 'composer was not called');
+        $this->assertStringContainsString($expectedArgs, file_get_contents($callsFile));
     }
 
     protected function createProjectDir(): string

@@ -13,11 +13,14 @@ case "${1:-}" in
 	init)
 		TARGET_DIR="$PROJECT_ROOT/config"
 		TEMPLATE="$PACKAGE_DIR/config-stubs/appsignal.php"
+		FRAMEWORK=""
 		# Detect framework
 		if [ -f "$PROJECT_ROOT/symfony.lock" ]; then
 			TARGET_DIR="$TARGET_DIR/packages"
+			FRAMEWORK="symfony"
 		elif [ -f "$PROJECT_ROOT/artisan" ] && [ -d "$PROJECT_ROOT/bootstrap" ]; then
 			TEMPLATE="$PACKAGE_DIR/config-stubs/appsignal.laravel.php"
+			FRAMEWORK="laravel"
 		fi
 
 		TARGET="$TARGET_DIR/appsignal.php"
@@ -30,11 +33,19 @@ case "${1:-}" in
 		mkdir -p "$TARGET_DIR"
 		cp "$TEMPLATE" "$TARGET"
 		echo "Appsignal config file created at $TARGET"
+
+		if [ "$FRAMEWORK" = "laravel" ]; then
+			echo "Installing open-telemetry/opentelemetry-auto-laravel..."
+			composer --working-dir="$PROJECT_ROOT" require open-telemetry/opentelemetry-auto-laravel
+		elif [ "$FRAMEWORK" = "symfony" ]; then
+			echo "Installing open-telemetry/opentelemetry-auto-symfony..."
+			composer --working-dir="$PROJECT_ROOT" require open-telemetry/opentelemetry-auto-symfony
+		fi
 		;;
 	*)
 		echo "Usage: appsignal <command>"
 		echo ""
 		echo "Commands:"
-		echo "  init    Scaffold the Appsignal config file for your application"
+		echo "  init    Scaffold the Appsignal config file and add auto-instrumentations"
 		;;
 esac
