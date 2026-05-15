@@ -174,16 +174,11 @@ class Appsignal
     }
 
 
-    protected function initializeOpenTelemetry(?Config $config = null): void
+    public function buildResource(Config $config): ResourceInfo
     {
-        if (isset($_ENV['_APPSIGNAL_TEST'])) {
-            return;
-        }
+        $serviceName = ucfirst($this->framework ?? 'PHP') . ' Service';
 
-        $detectedFramework = $this->framework ?? "PHP";
-        $serviceName = ucfirst($detectedFramework) . " Service";
-
-        $resource = ResourceInfoFactory::defaultResource()
+        return ResourceInfoFactory::defaultResource()
             ->merge(
                 ResourceInfo::create(
                     Attributes::create([
@@ -193,11 +188,21 @@ class Appsignal
                         'appsignal.config.push_api_key' => $config->pushApiKey,
                         'appsignal.config.revision' => $this->getRevision(),
                         'appsignal.config.language_integration' => 'php',
-                        'appsignal.config.app_path' => __DIR__,
+                        'appsignal.config.app_path' => $this->getBasePath(),
                         'host.name' => gethostname(),
+                        ...$config->getOtelResourceAttributes(),
                     ])
                 )
             );
+    }
+
+    protected function initializeOpenTelemetry(?Config $config = null): void
+    {
+        if (isset($_ENV['_APPSIGNAL_TEST'])) {
+            return;
+        }
+
+        $resource = $this->buildResource($config);
 
         $spanExporter = new SpanExporter(
             new OtlpHttpTransportFactory()->create("$config->collectorEndpoint/v1/traces", 'application/x-protobuf')

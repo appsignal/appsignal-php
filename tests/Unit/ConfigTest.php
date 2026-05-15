@@ -21,6 +21,20 @@ class ConfigTest extends TestCase
             $_ENV['APP_ENV'],
             $_ENV['APPSIGNAL_PUSH_API_KEY'],
             $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'],
+            $_ENV['APPSIGNAL_FILTER_ATTRIBUTES'],
+            $_ENV['APPSIGNAL_FILTER_FUNCTION_PARAMETERS'],
+            $_ENV['APPSIGNAL_FILTER_REQUEST_QUERY_PARAMETERS'],
+            $_ENV['APPSIGNAL_FILTER_REQUEST_PAYLOAD'],
+            $_ENV['APPSIGNAL_FILTER_REQUEST_SESSION_DATA'],
+            $_ENV['APPSIGNAL_IGNORE_ACTIONS'],
+            $_ENV['APPSIGNAL_IGNORE_ERRORS'],
+            $_ENV['APPSIGNAL_IGNORE_NAMESPACES'],
+            $_ENV['APPSIGNAL_REQUEST_HEADERS'],
+            $_ENV['APPSIGNAL_RESPONSE_HEADERS'],
+            $_ENV['APPSIGNAL_SEND_FUNCTION_PARAMETERS'],
+            $_ENV['APPSIGNAL_SEND_REQUEST_QUERY_PARAMETERS'],
+            $_ENV['APPSIGNAL_SEND_REQUEST_PAYLOAD'],
+            $_ENV['APPSIGNAL_SEND_REQUEST_SESSION_DATA'],
         );
     }
 
@@ -85,8 +99,7 @@ class ConfigTest extends TestCase
         $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'] = 'https://collector.test';
         $_ENV['APPSIGNAL_DISABLE_PATCHES'] = 'foo,bar,baz';
 
-        $config = Config::tryFromFile(__DIR__ . '/../Stubs/laravel/config/appsignal_partial.php')
-            ->applySystemEnvVariables();
+        $config = Config::load(__DIR__ . '/../Stubs/laravel/config/appsignal_partial.php');
 
         $this->assertEquals('Partial App', $config->name);
         $this->assertEquals('fake-key', $config->pushApiKey);
@@ -95,13 +108,48 @@ class ConfigTest extends TestCase
         $this->assertEquals(['foo', 'bar', 'baz'], $config->disablePatches);
     }
 
+    public function testEnvVariablesOverrideArrayAndBoolOptions(): void
+    {
+        $_ENV['APPSIGNAL_FILTER_ATTRIBUTES'] = 'foo, bar, baz';
+        $_ENV['APPSIGNAL_FILTER_FUNCTION_PARAMETERS'] = 'param1,param2';
+        $_ENV['APPSIGNAL_FILTER_REQUEST_QUERY_PARAMETERS'] = 'q,page';
+        $_ENV['APPSIGNAL_FILTER_REQUEST_PAYLOAD'] = 'password,token';
+        $_ENV['APPSIGNAL_FILTER_REQUEST_SESSION_DATA'] = 'session_id';
+        $_ENV['APPSIGNAL_IGNORE_ACTIONS'] = 'HealthController#index';
+        $_ENV['APPSIGNAL_IGNORE_ERRORS'] = 'RuntimeException,LogicException';
+        $_ENV['APPSIGNAL_IGNORE_NAMESPACES'] = 'background,cron';
+        $_ENV['APPSIGNAL_REQUEST_HEADERS'] = 'X-Request-Id,Accept';
+        $_ENV['APPSIGNAL_RESPONSE_HEADERS'] = 'Content-Type';
+        $_ENV['APPSIGNAL_SEND_FUNCTION_PARAMETERS'] = 'false';
+        $_ENV['APPSIGNAL_SEND_REQUEST_QUERY_PARAMETERS'] = 'false';
+        $_ENV['APPSIGNAL_SEND_REQUEST_PAYLOAD'] = 'false';
+        $_ENV['APPSIGNAL_SEND_REQUEST_SESSION_DATA'] = 'false';
+
+        $config = new Config()->applyEnvVariables();
+
+        $this->assertEquals(['foo', 'bar', 'baz'], $config->filterAttributes);
+        $this->assertEquals(['param1', 'param2'], $config->filterFunctionParameters);
+        $this->assertEquals(['q', 'page'], $config->filterRequestQueryParameters);
+        $this->assertEquals(['password', 'token'], $config->filterRequestPayload);
+        $this->assertEquals(['session_id'], $config->filterRequestSessionData);
+        $this->assertEquals(['HealthController#index'], $config->ignoreActions);
+        $this->assertEquals(['RuntimeException', 'LogicException'], $config->ignoreErrors);
+        $this->assertEquals(['background', 'cron'], $config->ignoreNamespaces);
+        $this->assertEquals(['X-Request-Id', 'Accept'], $config->requestHeaders);
+        $this->assertEquals(['Content-Type'], $config->responseHeaders);
+        $this->assertFalse($config->sendFunctionParameters);
+        $this->assertFalse($config->sendRequestQueryParameters);
+        $this->assertFalse($config->sendRequestPayload);
+        $this->assertFalse($config->sendRequestSessionData);
+    }
+
     public function testWithEnvVariables(): void
     {
         $_ENV['APPSIGNAL_PUSH_API_KEY'] = 'fake-key';
         $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'] = 'https://collector.test';
 
         $config = new Config();
-        $config->applySystemEnvVariables();
+        $config->applyEnvVariables();
 
         $this->assertNull($config->name);
         $this->assertNull($config->environment);

@@ -9,7 +9,7 @@ if (class_exists(\Dotenv\Dotenv::class)) {
     \Dotenv\Dotenv::createImmutable($projectRoot)->safeLoad();
 }
 
-$config = \Appsignal\Config::tryFromFile($configPath)->applySystemEnvVariables();
+$config = \Appsignal\Config::load($configPath);
 
 if (!$config->isValid()) {
     echo 'Appsignal config is invalid. Missing: ' . implode(', ', $config->getMissingFields()) . PHP_EOL;
