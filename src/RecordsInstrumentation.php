@@ -68,6 +68,21 @@ trait RecordsInstrumentation
     }
 
     /**
+     * @param array<string, mixed> $headers
+     */
+    public static function addHeaders(array $headers): void
+    {
+        $span = Span::getCurrent();
+
+        foreach ($headers as $key => $value) {
+            if (!is_string($value) && !(is_array($value) && array_all($value, fn($v) => is_string($v)))) {
+                continue;
+            }
+            $span->setAttribute('http.request.header.' . $key, $value);
+        }
+    }
+
+    /**
      * @param array<string, mixed> $data
      */
     public static function addAttributes(array $data): void

@@ -142,6 +142,35 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
         $this->assertSpanCreated(name: 'admin-action', attributes: ['appsignal.namespace' => 'admin']);
     }
 
+    public function testAddHeaders(): void
+    {
+        AppsignalStub::instrument('string headers', closure: function () {
+            AppsignalStub::addHeaders([
+                'my-header' => 'foobar',
+                'another-header' => 'some-value',
+            ]);
+        });
+
+        $this->assertSpanCreated(
+            name: 'string headers',
+            attributes: [
+                'http.request.header.my-header' => 'foobar',
+                'http.request.header.another-header' => 'some-value',
+            ],
+        );
+
+
+        AppsignalStub::instrument('string array header', closure: function () {
+            AppsignalStub::addHeaders(['custom-header' => ['value1', 'value2']]);
+        });
+
+        $this->assertSpanCreated(
+            name: 'string array header',
+            attributes: [
+                'http.request.header.custom-header' => ['value1', 'value2'],
+            ],
+        );
+    }
 
     public function testAddCustomData(): void
     {
