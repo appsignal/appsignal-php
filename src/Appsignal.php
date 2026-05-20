@@ -7,7 +7,6 @@ use Appsignal\Environments\Laravel;
 use Appsignal\Environments\Symfony;
 use Appsignal\Environments\Vanilla;
 use Appsignal\Patches\AlignedStackTraceFormatterPatch;
-use Dotenv\Dotenv;
 use OpenTelemetry\API\Trace\Propagation\TraceContextPropagator;
 use OpenTelemetry\Contrib\Otlp\MetricExporter;
 use OpenTelemetry\SDK\Logs\Processor\SimpleLogRecordProcessor;
@@ -144,8 +143,6 @@ class Appsignal
             return;
         }
 
-        $this->loadEnv();
-
         $config = $environment->getConfig();
 
         if (!$config->isValid()) {
@@ -183,13 +180,13 @@ class Appsignal
                 ResourceInfo::create(
                     Attributes::create([
                         'service.name' => $serviceName,
+                        'host.name' => gethostname() ?: 'unknown',
                         'appsignal.config.name' => $config->name,
                         'appsignal.config.environment' => $config->environment,
                         'appsignal.config.push_api_key' => $config->pushApiKey,
                         'appsignal.config.revision' => $this->getRevision(),
                         'appsignal.config.language_integration' => 'php',
                         'appsignal.config.app_path' => $this->getBasePath(),
-                        'host.name' => gethostname(),
                         ...$config->getOtelResourceAttributes(),
                     ])
                 )
@@ -248,29 +245,6 @@ class Appsignal
             ->buildAndRegisterGlobal();
     }
 
-    public function loadEnv(): bool
-    {
-        if (isset($_ENV['APP_KEY'])) {
-            return true;
-        }
-
-
-        if (is_null($this->basePath)) {
-            return false;
-        }
-
-
-        $envPath = $this->basePath . '/.env';
-
-
-        if (file_exists(filename: $envPath)) {
-            $dotenv = Dotenv::createImmutable($this->basePath);
-            $dotenv->safeLoad();
-            return true;
-        }
-
-        return false;
-    }
     /**
      * @return array<string,string>|array<string,null>|array<null,null>
      */

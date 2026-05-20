@@ -5,6 +5,7 @@ namespace Appsignal\Tests\Unit\Environments;
 use Appsignal\Config;
 use Appsignal\Environments\Laravel;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 class LaravelTest extends TestCase
 {
@@ -24,6 +25,24 @@ class LaravelTest extends TestCase
 
         $this->assertInstanceOf(Config::class, $config);
         $this->assertNull($config->name);
+    }
+
+    #[RunInSeparateProcess]
+    public function testGetConfigLoadsDotenvFile(): void
+    {
+        $dir = sys_get_temp_dir() . '/appsignal_laravel_test_' . uniqid();
+        mkdir($dir);
+
+        file_put_contents($dir . '/.env', "TEST_LARAVEL_ENV_VAR=from_dotenv\n");
+
+        $laravel = new Laravel($dir);
+        $laravel->getConfig();
+
+        $this->assertEquals('from_dotenv', $_ENV['TEST_LARAVEL_ENV_VAR']);
+
+        unset($_ENV['TEST_LARAVEL_ENV_VAR']);
+        array_map('unlink', glob("$dir/*"));
+        rmdir($dir);
     }
 
     public function testGetConfigLoadsFromConfigFile(): void

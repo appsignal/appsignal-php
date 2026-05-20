@@ -68,51 +68,6 @@ class AppsignalTest extends TestCase
         $this->assertSame(extension_loaded('opentelemetry'), $result);
     }
 
-    public function testLoadEnvFromDotenvFile(): void
-    {
-        $dir = $this->createTempDir();
-        file_put_contents($dir . '/.env', "TEST_APPSIGNAL_VAR=hello_world\n");
-
-        unset($_ENV['APP_KEY']);
-
-        $appSignal = Appsignal::getInstance();
-        $appSignal->setBasePath($dir);
-
-        $appSignal->loadEnv();
-
-        $this->assertEquals('hello_world', $_ENV['TEST_APPSIGNAL_VAR']);
-
-        unset($_ENV['TEST_APPSIGNAL_VAR']);
-    }
-
-    public function testLoadEnvSkipsIfAppKeyAlreadySet(): void
-    {
-        $dir = $this->createTempDir();
-        file_put_contents($dir . '/.env', "TEST_KEY=should_not_load\n");
-
-        $_ENV['APP_KEY'] = 'some-key';
-
-        $appSignal = Appsignal::getInstance();
-        $appSignal->setBasePath($dir);
-
-        $appSignal->loadEnv();
-
-        $this->assertArrayNotHasKey('TEST_KEY', $_ENV);
-
-        unset($_ENV['APP_KEY']);
-    }
-
-    public function testLoadEnvSkipsIfBasePathIsNull(): void
-    {
-        unset($_ENV['APP_KEY']);
-
-        $appSignal = Appsignal::getInstance();
-
-        $appSignal->loadEnv();
-
-        $this->assertNull($appSignal->getBasePath());
-    }
-
     #[Group('no-extension')]
     public function testDoesNotInitializeWithoutExtension(): void
     {

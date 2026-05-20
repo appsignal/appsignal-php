@@ -15,6 +15,9 @@ class Laravel implements Environment
 
     public function getConfig(): Config
     {
+        if (class_exists(\Dotenv\Dotenv::class)) {
+            \Dotenv\Dotenv::createImmutable($this->basePath)->safeLoad();
+        }
         return Config::load($this->basePath . Config::CONFIG_PATH);
     }
 }
