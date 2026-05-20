@@ -16,6 +16,17 @@ class LoggingTest extends TestCase
         );
     }
 
+    public function test_standalone_log(): void
+    {
+        $this->get('/standalone-log');
+
+        $this->assertLogCreated(
+            body: 'Standalone log',
+            severity: 'INFO',
+            attributes: ['foo' => 'abc'],
+        );
+    }
+
     public function test_log_with_attributes(): void
     {
         $this->get('/log-with-attributes');

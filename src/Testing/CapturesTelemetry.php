@@ -24,6 +24,7 @@ use OpenTelemetry\SDK\Trace\TracerProvider;
 trait CapturesTelemetry
 {
     protected ScopeInterface $scope;
+    protected bool $scopeDetached = false;
 
     /** @var ArrayObject<int, ImmutableSpan> */
     protected ArrayObject $spanStorage;
@@ -74,9 +75,17 @@ trait CapturesTelemetry
             ->activate();
     }
 
+    protected function detachScope(): void
+    {
+        $this->scopeDetached = true;
+        $this->scope->detach();
+    }
+
     protected function tearDown(): void
     {
-        $this->scope->detach();
+        if (!$this->scopeDetached) {
+            $this->scope->detach();
+        }
         $this->tracerProvider->shutdown();
         $this->loggerProvider->shutdown();
         $this->meterProvider->shutdown();
@@ -217,9 +226,27 @@ trait CapturesTelemetry
         );
     }
 
-    /** @param array<string, mixed> $attributes */
-    protected function assertLogCreated(?string $body = null, ?string $severity = null, ?array $attributes = []): void
+    protected function assertLogNotCreated(string $body): void
     {
+        $found = false;
+
+        foreach ($this->getLogs() as $log) {
+            if ($log->getBody() === $body) {
+                $found = true;
+                break;
+            }
+        }
+
+        PHPUnit::assertFalse($found, sprintf('Unexpected log with body "%s" was found.', $body));
+    }
+
+    /** @param array<string, mixed> $attributes */
+    protected function assertLogCreated(
+        ?string $body = null,
+        ?string $severity = null,
+        ?array $attributes = [],
+        ?string $loggerName = null,
+    ): void {
         $logs = $this->getLogs();
         $found = false;
 
@@ -229,6 +256,10 @@ trait CapturesTelemetry
             }
 
             if ($severity !== null && $log->getSeverityText() !== $severity) {
+                continue;
+            }
+
+            if ($loggerName !== null && $log->getInstrumentationScope()->getName() !== $loggerName) {
                 continue;
             }
 
