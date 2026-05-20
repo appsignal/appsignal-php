@@ -93,7 +93,7 @@ class Appsignal
         $disabledPatches = $this->getDisabledPatches($config);
 
         if (!in_array('stack_trace_formatter', $disabledPatches)) {
-            (new AlignedStackTraceFormatterPatch(appRoot: $this->basePath))();
+            (new AlignedStackTraceFormatterPatch(appRoot: $config->appPath ?? $this->basePath))();
         }
     }
 

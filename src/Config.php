@@ -9,7 +9,17 @@ class Config
     public const CONFIG_PATH = '/config/appsignal.php';
 
     /**
-     * @param string[]|null $disablePatches
+     * @param string[] $disablePatches
+     * @param string[] $filterAttributes
+     * @param string[] $filterFunctionParameters
+     * @param string[] $filterRequestQueryParameters
+     * @param string[] $filterRequestPayload
+     * @param string[] $filterRequestSessionData
+     * @param string[] $ignoreActions
+     * @param string[] $ignoreErrors
+     * @param string[] $ignoreNamespaces
+     * @param string[]|null $requestHeaders
+     * @param string[]|null $responseHeaders
      */
     public function __construct(
         public ?bool $active = false,
@@ -17,6 +27,7 @@ class Config
         public ?string $environment = null,
         public ?string $pushApiKey = null,
         public ?string $collectorEndpoint = null,
+        public ?string $appPath = null,
         public ?array $disablePatches = [],
         public ?array $filterAttributes = [],
         public ?array $filterFunctionParameters = [],
@@ -65,9 +76,9 @@ class Config
         return $missing;
     }
 
-    public static function load(string $path): self
+    public static function load(string $configPath): self
     {
-        return self::tryFromFile($path)->applyEnvVariables();
+        return self::tryFromFile($configPath)->applyEnvVariables();
     }
 
     public function applyEnvVariables(): self
@@ -90,6 +101,9 @@ class Config
         }
         if (isset($_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'])) {
             $this->collectorEndpoint = $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'];
+        }
+        if (isset($_ENV['APPSIGNAL_APP_PATH'])) {
+            $this->appPath = $_ENV['APPSIGNAL_APP_PATH'];
         }
         if (isset($_ENV['APPSIGNAL_DISABLE_PATCHES'])) {
             $this->disablePatches = self::splitCsv($_ENV['APPSIGNAL_DISABLE_PATCHES']);
@@ -162,6 +176,7 @@ class Config
                 environment: $values['environment'] ?? null,
                 pushApiKey: $values['push_api_key'] ?? null,
                 collectorEndpoint: $values['collector_endpoint'] ?? null,
+                appPath: $values['app_path'] ?? null,
                 disablePatches: is_array($disabledPatches) ? $disabledPatches : [],
                 filterAttributes: self::ensureStringArray($values['filter_attributes'] ?? [], []),
                 filterFunctionParameters: self::ensureStringArray($values['filter_function_parameters'] ?? [], []),
@@ -196,11 +211,12 @@ class Config
     }
 
     /**
-     * @return array|array<string,?array>
+     * @return array<string, string[]|false>
      */
     public function getOtelResourceAttributes(): array
     {
         $config = [];
+
         if (count($this->filterAttributes) > 0) {
             $config['appsignal.config.filter_attributes'] = $this->filterAttributes;
         }
@@ -247,6 +263,9 @@ class Config
         return $config;
     }
 
+    /**
+     * @return string[]
+     */
     private static function splitCsv(string $value): array
     {
         if ($value === '') {
@@ -257,11 +276,11 @@ class Config
 
     /**
      * @param mixed $items
-     * @param mixed $fallback
+     * @param string[]|null $fallback
      *
-     * @return mixed
+     * @return string[]|null
      */
-    protected static function ensureStringArray($items, $fallback): array
+    protected static function ensureStringArray($items, $fallback): ?array
     {
         $allStrings = true;
         foreach ($items as $value) {

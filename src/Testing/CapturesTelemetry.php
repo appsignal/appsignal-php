@@ -22,6 +22,7 @@ use OpenTelemetry\SDK\Trace\ImmutableSpan;
 use OpenTelemetry\SDK\Trace\SpanExporter\InMemoryExporter as InMemorySpanExporter;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\TracerProvider;
+use OpenTelemetry\SDK\Trace\TracerProviderInterface;
 
 trait CapturesTelemetry
 {
@@ -31,7 +32,7 @@ trait CapturesTelemetry
     /** @var ArrayObject<int, ImmutableSpan> */
     protected ArrayObject $spanStorage;
 
-    protected TracerProvider $tracerProvider;
+    protected TracerProviderInterface $tracerProvider;
 
     /** @var ArrayObject<int, ReadableLogRecord> */
     protected ArrayObject $logStorage;

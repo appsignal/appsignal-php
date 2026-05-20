@@ -35,6 +35,7 @@ class ConfigTest extends TestCase
             $_ENV['APPSIGNAL_SEND_REQUEST_QUERY_PARAMETERS'],
             $_ENV['APPSIGNAL_SEND_REQUEST_PAYLOAD'],
             $_ENV['APPSIGNAL_SEND_REQUEST_SESSION_DATA'],
+            $_ENV['APPSIGNAL_APP_PATH'],
         );
     }
 
@@ -76,7 +77,17 @@ class ConfigTest extends TestCase
         $this->assertEquals('staging', $config->environment);
         $this->assertEquals('laravel-key', $config->pushApiKey);
         $this->assertEquals('https://collector.test', $config->collectorEndpoint);
+        $this->assertEquals('/custom/app/path', $config->appPath);
         $this->assertEquals(['stack_trace_formatter'], $config->disablePatches);
+    }
+
+    public function testEnvVariableOverridesAppPath(): void
+    {
+        $_ENV['APPSIGNAL_APP_PATH'] = '/env/app/path';
+
+        $config = Config::tryFromFile(__DIR__ . '/../Stubs/laravel/config/appsignal.php')->applyEnvVariables();
+
+        $this->assertEquals('/env/app/path', $config->appPath);
     }
 
     public function testTryFromFileReturnsEmptyConfigForMissingFile(): void
@@ -226,6 +237,7 @@ class ConfigTest extends TestCase
         $this->assertNull($config->environment);
         $this->assertNull($config->pushApiKey);
         $this->assertNull($config->collectorEndpoint);
+        $this->assertNull($config->appPath);
         $this->assertEmpty($config->disablePatches);
     }
 }

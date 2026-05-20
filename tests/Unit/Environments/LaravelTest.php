@@ -41,7 +41,8 @@ class LaravelTest extends TestCase
         $this->assertEquals('from_dotenv', $_ENV['TEST_LARAVEL_ENV_VAR']);
 
         unset($_ENV['TEST_LARAVEL_ENV_VAR']);
-        array_map('unlink', glob("$dir/*"));
+        $files = array_diff(scandir($dir), ['.', '..']);
+        array_map(fn($f) => unlink("$dir/$f"), $files);
         rmdir($dir);
     }
 
