@@ -29,6 +29,7 @@ use OpenTelemetry\SDK\Resource\ResourceInfoFactory;
 class Appsignal
 {
     use RecordsInstrumentation;
+    use RecordsLogs;
     use RecordsMetrics;
 
     protected static ?self $instance = null;
