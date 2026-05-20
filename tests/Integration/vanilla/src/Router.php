@@ -63,6 +63,7 @@ class Router
                 }
             ),
             '/set-action' => Appsignal::setAction('my action'),
+            '/set-namespace' => Appsignal::setNamespace('admin'),
             '/custom-data' => Appsignal::addAttributes([
                 'string-attribute' => 'abcdef',
                 'int-attribute' => 1234,

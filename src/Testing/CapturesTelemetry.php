@@ -135,10 +135,14 @@ trait CapturesTelemetry
     }
 
     /** @param array<string, mixed> $attributes */
-    private function findSpan(?string $name, array $attributes): ?ImmutableSpan
+    private function findSpan(?string $name = null, array $attributes = [], ?int $spanKind = null): ?ImmutableSpan
     {
         foreach ($this->getSpans() as $span) {
             if ($name !== null && $span->getName() !== $name) {
+                continue;
+            }
+
+            if ($spanKind !== null && $span->getKind() !== $spanKind) {
                 continue;
             }
 
@@ -155,25 +159,26 @@ trait CapturesTelemetry
     }
 
     /** @param array<string, mixed> $attributes */
-    private function spanCriteriaDescription(?string $name, array $attributes): string
+    private function spanCriteriaDescription(?string $name = null, ?array $attributes = [], ?int $spanKind = null): string
     {
         return sprintf(
-            '%s%s',
+            '%s%s%s',
             $name !== null ? sprintf(' named "%s"', $name) : '',
-            $attributes ? ' with attributes ' . json_encode($attributes) : '',
+            count($attributes) > 0 ? ' with attributes ' . json_encode($attributes) : '',
+            $spanKind !== null ? sprintf(' with kind "%s"', $spanKind) : '',
         );
     }
 
     /** @param array<string, mixed> $attributes */
-    protected function assertSpanCreated(?string $name = null, array $attributes = []): void
+    protected function assertSpanCreated(?string $name = null, array $attributes = [], ?int $spanKind = null): void
     {
         $spans = $this->getSpans();
 
         PHPUnit::assertTrue(
-            $this->findSpan($name, $attributes) !== null,
+            $this->findSpan($name, $attributes, $spanKind) !== null,
             sprintf(
                 'No span%s found. Spans: [%s]',
-                $this->spanCriteriaDescription($name, $attributes),
+                $this->spanCriteriaDescription($name, $attributes, $spanKind),
                 implode(', ', array_map(fn($s) => sprintf('"%s"', $s->getName()), $spans)),
             ),
         );
@@ -213,13 +218,17 @@ trait CapturesTelemetry
     }
 
     /** @param array<string, mixed> $attributes */
-    protected function assertLogCreated(?string $body = null, array $attributes = []): void
+    protected function assertLogCreated(?string $body = null, ?string $severity = null, ?array $attributes = []): void
     {
         $logs = $this->getLogs();
         $found = false;
 
         foreach ($logs as $log) {
             if ($body !== null && $log->getBody() !== $body) {
+                continue;
+            }
+
+            if ($severity !== null && $log->getSeverityText() !== $severity) {
                 continue;
             }
 

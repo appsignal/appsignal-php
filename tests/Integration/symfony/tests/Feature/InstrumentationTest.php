@@ -57,6 +57,17 @@ class InstrumentationTest extends TestCase
         $this->assertSpanCreated(name: 'GET /set-action', attributes: ['appsignal.action_name' => 'my action']);
     }
 
+    public function test_appsignal_set_namespace(): void
+    {
+        $this->get('/set-namespace');
+
+        $this->assertSpanCreated(
+            name: 'GET /set-namespace',
+            attributes: ['appsignal.namespace' => 'admin']
+        );
+    }
+
+
     public function test_add_custom_data(): void
     {
         $this->get('/custom-data');
