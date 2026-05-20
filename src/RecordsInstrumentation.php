@@ -83,6 +83,26 @@ trait RecordsInstrumentation
     }
 
     /**
+     * @param array<string, mixed> $params
+     */
+    public static function setParams(array $params): void
+    {
+        $span = Span::getCurrent();
+
+        $span->setAttribute('appsignal.request.query_parameters', json_encode($params));
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public static function setPayload(array $payload): void
+    {
+        $span = Span::getCurrent();
+
+        $span->setAttribute('appsignal.request.payload', json_encode($payload));
+    }
+
+    /**
      * @param array<string, mixed> $data
      */
     public static function addAttributes(array $data): void

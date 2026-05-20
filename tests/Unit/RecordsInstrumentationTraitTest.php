@@ -172,6 +172,49 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
         );
     }
 
+    public function testSetParams(): void
+    {
+        $params = [
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'nested' => [
+                'param3' => 'value3',
+                'param4' => 'value4',
+            ],
+        ];
+
+        AppsignalStub::instrument(name: 'custom-params', closure: fn() => AppsignalStub::setParams($params));
+
+        $this->assertSpanCreated(
+            name: 'custom-params',
+            attributes: [
+                'appsignal.request.query_parameters' => json_encode($params),
+            ],
+        );
+    }
+
+    public function testSetPayload(): void
+    {
+        $payload = [
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'nested' => [
+                'param3' => 'value3',
+                'param4' => 'value4',
+            ],
+        ];
+
+        AppsignalStub::instrument(name: 'custom-payload', closure: fn() => AppsignalStub::setPayload($payload));
+
+        $this->assertSpanCreated(
+            name: 'custom-payload',
+            attributes: [
+                'appsignal.request.payload' => json_encode($payload),
+            ],
+        );
+    }
+
+
     public function testAddCustomData(): void
     {
         AppsignalStub::instrument('some-action', closure: function () {
