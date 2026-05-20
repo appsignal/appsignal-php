@@ -56,6 +56,14 @@ class TestController
         return new Response();
     }
 
+    #[Route('/set-namespace', methods: ['GET'])]
+    public function setNamespace(): Response
+    {
+        Appsignal::setNamespace('admin');
+
+        return new Response();
+    }
+
     #[Route('/custom-data', methods: ['GET'])]
     public function customData(): Response
     {

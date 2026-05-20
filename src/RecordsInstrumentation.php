@@ -61,6 +61,12 @@ trait RecordsInstrumentation
         $span->setAttribute('appsignal.action_name', $name);
     }
 
+    public static function setNamespace(string $namespace): void
+    {
+        $span = Span::getCurrent();
+        $span->setAttribute('appsignal.namespace', $namespace);
+    }
+
     /**
      * @param array<string, mixed> $data
      */

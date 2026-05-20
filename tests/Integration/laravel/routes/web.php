@@ -32,6 +32,10 @@ Route::get('/set-action', function () {
     Appsignal::setAction('my action');
 });
 
+Route::get('/set-namespace', function () {
+    Appsignal::setNamespace('admin');
+});
+
 Route::get('/custom-data', function () {
     Appsignal::addAttributes([
         'string-attribute' => 'abcdef',

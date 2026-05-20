@@ -7,34 +7,38 @@ use Appsignal\RecordsInstrumentation;
 use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
-use Opentelemetry\Proto\Trace\V1\Span\SpanKind as SpanSpanKind;
 use RuntimeException;
 
 class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
 {
     public function testInstrument(): void
     {
-        $activeSpan = AppsignalStub::instrument('my-span');
-        $activeSpan->end();
+        AppsignalStub::instrument(name: 'my-span', closure: fn() => null, spanKind: SpanKind::KIND_SERVER);
 
         $this->assertCount(1, $this->spanStorage);
-        $this->assertEquals('my-span', $this->getLastSpan()->getName());
-        $this->assertEquals(SpanKind::KIND_INTERNAL, $this->getLastSpan()->getKind());
+        $this->assertSpanCreated(name: 'my-span', spanKind: SpanKind::KIND_SERVER);
     }
 
     public function testInstrumentWithAttributes(): void
     {
-        $activeSpan = AppsignalStub::instrument('my-span', [
-            'http.method' => 'GET',
-            'http.url' => '/foo',
-        ]);
+        $activeSpan = AppsignalStub::instrument(
+            name: 'my-span',
+            attributes: [
+                'http.method' => 'GET',
+                'http.url' => '/foo',
+            ],
+        );
         $activeSpan->end();
 
         $this->assertCount(1, $this->spanStorage);
 
-        $attributes = $this->getLastSpanAttributes();
-        $this->assertEquals('GET', $attributes['http.method']);
-        $this->assertEquals('/foo', $attributes['http.url']);
+        $this->assertSpanCreated(
+            name: 'my-span',
+            attributes: [
+                'http.method' => 'GET',
+                'http.url' => '/foo',
+            ],
+        );
     }
 
     public function testInsturmentWithSpanKind(): void
@@ -43,9 +47,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
         $span->end();
 
         $this->assertCount(1, $this->spanStorage);
-
-        $this->assertEquals("should_be_server_span", $this->getLastSpan()->getName());
-        $this->assertEquals(SpanKind::KIND_SERVER, $this->getLastSpan()->getKind());
+        $this->assertSpanCreated(name: 'should_be_server_span', spanKind: SpanKind::KIND_SERVER);
     }
 
     public function testInstrumentWithClosure(): void
@@ -58,8 +60,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
 
         $this->assertTrue($called);
         $this->assertCount(1, $this->spanStorage);
-        $this->assertEquals('closure', $this->getLastSpan()->getName());
-        $this->assertCount(0, $this->getLastSpanAttributes());
+        $this->assertSpanCreated(name: 'closure');
     }
 
     public function testInstrumentWithAttributesAndClosure(): void
@@ -72,8 +73,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
 
         $this->assertTrue($called);
         $this->assertCount(1, $this->spanStorage);
-        $this->assertEquals('closure-and-attributes', $this->getLastSpan()->getName());
-        $this->assertEquals('value', $this->getLastSpanAttributes()['key']);
+        $this->assertSpanCreated(name: 'closure-and-attributes', attributes: ['key' => 'value']);
     }
 
     public function testInstrumentReturnsActiveSpan(): void
@@ -92,8 +92,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
             $this->assertInstanceOf(Span::class, $span);
         });
 
-        $attributes = $this->getLastSpanAttributes();
-        $this->assertEquals('yes', $attributes['from-closure']);
+        $this->assertSpanCreated(name: 'span', attributes: ['from-closure' => 'yes']);
     }
 
     public function testInstrumentEndsSpanOnException(): void
@@ -131,9 +130,18 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
             AppsignalStub::setAction('UsersController::show');
         });
 
-        $attributes = $this->getLastSpanAttributes();
-        $this->assertEquals('UsersController::show', $attributes['appsignal.action_name']);
+        $this->assertSpanCreated(name: 'some-action', attributes: ['appsignal.action_name' => 'UsersController::show']);
     }
+
+    public function testSetNamespace(): void
+    {
+        AppsignalStub::instrument('admin-action', closure: function () {
+            AppsignalStub::setNamespace('admin');
+        });
+
+        $this->assertSpanCreated(name: 'admin-action', attributes: ['appsignal.namespace' => 'admin']);
+    }
+
 
     public function testAddCustomData(): void
     {
@@ -144,9 +152,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
             ]);
         });
 
-        $attributes = $this->getLastSpanAttributes();
-        $this->assertEquals(123456, $attributes['user_id']);
-        $this->assertEquals('abc-123', $attributes['request_id']);
+        $this->assertSpanCreated(name: 'some-action', attributes: ['user_id' => 123456, 'request_id' => 'abc-123']);
     }
 
     public function testAddTags(): void
@@ -158,9 +164,13 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
             ]);
         });
 
-        $attributes = $this->getLastSpanAttributes();
-        $this->assertEquals('production', $attributes['appsignal.tag.environment']);
-        $this->assertEquals('eu-west-1', $attributes['appsignal.tag.region']);
+        $this->assertSpanCreated(
+            name: 'tags-span',
+            attributes: [
+                'appsignal.tag.environment' => 'production',
+                'appsignal.tag.region' => 'eu-west-1',
+            ]
+        );
     }
 
     public function testSpanEndDetachesScope(): void
@@ -182,8 +192,7 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
         $activeSpan->setAttribute('delegated', 'yes');
         $activeSpan->end();
 
-        $attributes = $this->getLastSpanAttributes();
-        $this->assertEquals('yes', $attributes['delegated']);
+        $this->assertSpanCreated(name: 'delegate-span', attributes: ['delegated' => 'yes']);
     }
 }
 

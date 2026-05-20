@@ -10,21 +10,20 @@ class LoggingTest extends TestCase
     {
         $this->get('/log');
 
-        [$log] = $this->getLogs();
-
-        $this->assertEquals('INFO', $log->getSeverityText());
-        $this->assertEquals('My log', $log->getBody());
-        $this->assertNull($log->getEventName());
+        $this->assertLogCreated(
+            body: 'My log',
+            severity: 'INFO',
+        );
     }
 
     public function test_log_with_attributes(): void
     {
         $this->get('/log-with-attributes');
 
-        [$log] = $this->getLogs();
-
-        $this->assertEquals('INFO', $log->getSeverityText());
-        $this->assertEquals('My log with attributes', $log->getBody());
-        $this->assertEquals(["foo" => "bar"], $log->getAttributes()->get('context'));
+        $this->assertLogCreated(
+            body: 'My log with attributes',
+            severity: 'INFO',
+            attributes: ['context' => ['foo' => 'bar']],
+        );
     }
 }
