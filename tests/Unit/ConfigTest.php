@@ -36,6 +36,9 @@ class ConfigTest extends TestCase
             $_ENV['APPSIGNAL_SEND_REQUEST_PAYLOAD'],
             $_ENV['APPSIGNAL_SEND_REQUEST_SESSION_DATA'],
             $_ENV['APPSIGNAL_APP_PATH'],
+            $_ENV['APPSIGNAL_REVISION'],
+            $_ENV['APPSIGNAL_HOSTNAME'],
+            $_ENV['APPSIGNAL_SERVICE_NAME'],
         );
     }
 
@@ -79,6 +82,33 @@ class ConfigTest extends TestCase
         $this->assertEquals('https://collector.test', $config->collectorEndpoint);
         $this->assertEquals('/custom/app/path', $config->appPath);
         $this->assertEquals(['stack_trace_formatter'], $config->disablePatches);
+    }
+
+    public function testEnvVariableOverridesRevision(): void
+    {
+        $_ENV['APPSIGNAL_REVISION'] = 'abc123';
+
+        $config = new Config()->applyEnvVariables();
+
+        $this->assertEquals('abc123', $config->revision);
+    }
+
+    public function testEnvVariableOverridesHostname(): void
+    {
+        $_ENV['APPSIGNAL_HOSTNAME'] = 'my-host';
+
+        $config = new Config()->applyEnvVariables();
+
+        $this->assertEquals('my-host', $config->hostname);
+    }
+
+    public function testEnvVariableOverridesServiceName(): void
+    {
+        $_ENV['APPSIGNAL_SERVICE_NAME'] = 'my-service';
+
+        $config = new Config()->applyEnvVariables();
+
+        $this->assertEquals('my-service', $config->serviceName);
     }
 
     public function testEnvVariableOverridesAppPath(): void

@@ -241,4 +241,52 @@ class OpenTelemetryResourceConfigTest extends TestCase
             $attributes,
         );
     }
+
+    public function testRevision(): void
+    {
+        $config = new Config(revision: 'abc123');
+        $attributes = $config->getOtelResourceAttributes();
+
+        $this->assertSame('abc123', $attributes['appsignal.config.revision']);
+    }
+
+    public function testNullRevisionNotSet(): void
+    {
+        $config = new Config(revision: null);
+        $attributes = $config->getOtelResourceAttributes();
+
+        $this->assertArrayNotHasKey('appsignal.config.revision', $attributes);
+    }
+
+    public function testHostname(): void
+    {
+        $config = new Config(hostname: 'my-host');
+        $attributes = $config->getOtelResourceAttributes();
+
+        $this->assertSame('my-host', $attributes['host.name']);
+    }
+
+    public function testNullHostnameNotSet(): void
+    {
+        $config = new Config(hostname: null);
+        $attributes = $config->getOtelResourceAttributes();
+
+        $this->assertArrayNotHasKey('host.name', $attributes);
+    }
+
+    public function testServiceName(): void
+    {
+        $config = new Config(serviceName: 'my-service');
+        $attributes = $config->getOtelResourceAttributes();
+
+        $this->assertSame('my-service', $attributes['service.name']);
+    }
+
+    public function testNullServiceNameNotSet(): void
+    {
+        $config = new Config(serviceName: null);
+        $attributes = $config->getOtelResourceAttributes();
+
+        $this->assertArrayNotHasKey('service.name', $attributes);
+    }
 }

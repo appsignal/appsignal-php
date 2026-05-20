@@ -173,17 +173,12 @@ class Appsignal
 
     public function buildResource(Config $config): ResourceInfo
     {
-        $serviceName = ucfirst($this->framework ?? 'PHP') . ' Service';
-
         return ResourceInfoFactory::defaultResource()
             ->merge(
                 ResourceInfo::create(
                     Attributes::create([
-                        'service.name' => $serviceName,
+                        'service.name' => ucfirst($this->framework ?? 'PHP') . ' Service',
                         'host.name' => gethostname() ?: 'unknown',
-                        'appsignal.config.name' => $config->name,
-                        'appsignal.config.environment' => $config->environment,
-                        'appsignal.config.push_api_key' => $config->pushApiKey,
                         'appsignal.config.revision' => $this->getRevision(),
                         'appsignal.config.language_integration' => 'php',
                         'appsignal.config.app_path' => $this->getBasePath(),

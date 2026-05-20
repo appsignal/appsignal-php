@@ -43,6 +43,9 @@ class Config
         public ?bool $sendRequestQueryParameters = null,
         public ?bool $sendRequestPayload = null,
         public ?bool $sendRequestSessionData = null,
+        public ?string $revision = null,
+        public ?string $hostname = null,
+        public ?string $serviceName = null,
     ) {}
 
     public function isValid(): bool
@@ -150,6 +153,15 @@ class Config
         if (isset($_ENV['APPSIGNAL_SEND_REQUEST_SESSION_DATA'])) {
             $this->sendRequestSessionData = filter_var($_ENV['APPSIGNAL_SEND_REQUEST_SESSION_DATA'], FILTER_VALIDATE_BOOL);
         }
+        if (isset($_ENV['APPSIGNAL_REVISION'])) {
+            $this->revision = $_ENV['APPSIGNAL_REVISION'];
+        }
+        if (isset($_ENV['APPSIGNAL_HOSTNAME'])) {
+            $this->hostname = $_ENV['APPSIGNAL_HOSTNAME'];
+        }
+        if (isset($_ENV['APPSIGNAL_SERVICE_NAME'])) {
+            $this->serviceName = $_ENV['APPSIGNAL_SERVICE_NAME'];
+        }
         return $this;
     }
 
@@ -204,6 +216,9 @@ class Config
                 sendRequestSessionData: array_key_exists('send_request_session_data', $values)
                     ? (bool) $values['send_request_session_data']
                     : null,
+                revision: $values['revision'] ?? null,
+                hostname: $values['hostname'] ?? null,
+                serviceName: $values['service_name'] ?? null,
             );
         } catch (Throwable $e) {
             return new self();
@@ -211,11 +226,15 @@ class Config
     }
 
     /**
-     * @return array<string, string[]|false>
+     * @return array<string, string|string[]|false|null>
      */
     public function getOtelResourceAttributes(): array
     {
-        $config = [];
+        $config = [
+            'appsignal.config.name' => $this->name,
+            'appsignal.config.environment' => $this->environment,
+            'appsignal.config.push_api_key' => $this->pushApiKey,
+        ];
 
         if (count($this->filterAttributes) > 0) {
             $config['appsignal.config.filter_attributes'] = $this->filterAttributes;
@@ -258,6 +277,15 @@ class Config
         }
         if ($this->sendRequestSessionData === false) {
             $config['appsignal.config.send_request_session_data'] = false;
+        }
+        if ($this->revision !== null) {
+            $config['appsignal.config.revision'] = $this->revision;
+        }
+        if ($this->hostname !== null) {
+            $config['host.name'] = $this->hostname;
+        }
+        if ($this->serviceName !== null) {
+            $config['service.name'] = $this->serviceName;
         }
 
         return $config;
