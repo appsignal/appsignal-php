@@ -82,3 +82,10 @@ Route::get('/counter', function () {
 Route::get('/error', [ErrorsController::class, 'show']);
 Route::get('/error-nested', [ErrorsController::class, 'nested']);
 Route::get('/error-handled', [ErrorsController::class, 'handled']);
+
+Route::get('/filtered-attributes', function () {
+    Appsignal::addAttributes([
+        'key' => 'super secret',
+        'secret' => 'also secret',
+    ]);
+});

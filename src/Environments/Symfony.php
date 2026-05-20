@@ -20,7 +20,9 @@ class Symfony implements Environment
 
     public function getConfig(): Config
     {
-        return Config::tryFromFile($this->basePath . Config::CONFIG_PATH)
-            ->applySystemEnvVariables();
+        if (class_exists(\Symfony\Component\Dotenv\Dotenv::class)) {
+            new \Symfony\Component\Dotenv\Dotenv()->loadEnv($this->basePath . '/.env');
+        }
+        return Config::load($this->basePath . Config::CONFIG_PATH);
     }
 }

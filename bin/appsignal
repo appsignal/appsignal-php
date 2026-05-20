@@ -43,9 +43,7 @@ case "${1:-}" in
 		fi
 		;;
 	validate)
-		CONFIG_PATH="$PROJECT_ROOT/config/appsignal.php"
-
-		php "${PACKAGE_DIR}/bin/validate.php" "$PROJECT_ROOT" "$CONFIG_PATH" "$AUTOLOAD"
+		php "${PACKAGE_DIR}/bin/validate.php" "$PROJECT_ROOT" "$AUTOLOAD"
 		;;
 	*)
 		echo "Usage: appsignal <command>"

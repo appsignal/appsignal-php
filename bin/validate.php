@@ -1,15 +1,17 @@
 #!/usr/bin/env php
 <?php
 
-[$projectRoot, $configPath, $autoload] = [$argv[1], $argv[2], $argv[3]];
+[$projectRoot, $autoload] = [$argv[1], $argv[2]];
 
 require $autoload;
 
-if (class_exists(\Dotenv\Dotenv::class)) {
-    \Dotenv\Dotenv::createImmutable($projectRoot)->safeLoad();
-}
+$environment = match(true) {
+    class_exists(\Illuminate\Foundation\Application::class) => new \Appsignal\Environments\Laravel($projectRoot),
+    class_exists(\Symfony\Component\HttpKernel\Kernel::class) => new \Appsignal\Environments\Symfony($projectRoot),
+    default => new \Appsignal\Environments\Vanilla($projectRoot),
+};
 
-$config = \Appsignal\Config::tryFromFile($configPath)->applySystemEnvVariables();
+$config = $environment->getConfig();
 
 if (!$config->isValid()) {
     echo 'Appsignal config is invalid. Missing: ' . implode(', ', $config->getMissingFields()) . PHP_EOL;

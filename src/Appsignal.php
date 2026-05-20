@@ -7,7 +7,6 @@ use Appsignal\Environments\Laravel;
 use Appsignal\Environments\Symfony;
 use Appsignal\Environments\Vanilla;
 use Appsignal\Patches\AlignedStackTraceFormatterPatch;
-use Dotenv\Dotenv;
 use OpenTelemetry\API\Trace\Propagation\TraceContextPropagator;
 use OpenTelemetry\Contrib\Otlp\MetricExporter;
 use OpenTelemetry\SDK\Logs\Processor\SimpleLogRecordProcessor;
@@ -94,7 +93,7 @@ class Appsignal
         $disabledPatches = $this->getDisabledPatches($config);
 
         if (!in_array('stack_trace_formatter', $disabledPatches)) {
-            (new AlignedStackTraceFormatterPatch(appRoot: $this->basePath))();
+            (new AlignedStackTraceFormatterPatch(appRoot: $config->appPath ?? $this->basePath))();
         }
     }
 
@@ -144,8 +143,6 @@ class Appsignal
             return;
         }
 
-        $this->loadEnv();
-
         $config = $environment->getConfig();
 
         if (!$config->isValid()) {
@@ -174,30 +171,30 @@ class Appsignal
     }
 
 
+    public function buildResource(Config $config): ResourceInfo
+    {
+        return ResourceInfoFactory::defaultResource()
+            ->merge(
+                ResourceInfo::create(
+                    Attributes::create([
+                        'service.name' => ucfirst($this->framework ?? 'PHP') . ' Service',
+                        'host.name' => gethostname() ?: 'unknown',
+                        'appsignal.config.revision' => $this->getRevision(),
+                        'appsignal.config.language_integration' => 'php',
+                        'appsignal.config.app_path' => $this->getBasePath(),
+                        ...$config->getOtelResourceAttributes(),
+                    ])
+                )
+            );
+    }
+
     protected function initializeOpenTelemetry(?Config $config = null): void
     {
         if (isset($_ENV['_APPSIGNAL_TEST'])) {
             return;
         }
 
-        $detectedFramework = $this->framework ?? "PHP";
-        $serviceName = ucfirst($detectedFramework) . " Service";
-
-        $resource = ResourceInfoFactory::defaultResource()
-            ->merge(
-                ResourceInfo::create(
-                    Attributes::create([
-                        'service.name' => $serviceName,
-                        'appsignal.config.name' => $config->name,
-                        'appsignal.config.environment' => $config->environment,
-                        'appsignal.config.push_api_key' => $config->pushApiKey,
-                        'appsignal.config.revision' => $this->getRevision(),
-                        'appsignal.config.language_integration' => 'php',
-                        'appsignal.config.app_path' => __DIR__,
-                        'host.name' => gethostname(),
-                    ])
-                )
-            );
+        $resource = $this->buildResource($config);
 
         $spanExporter = new SpanExporter(
             new OtlpHttpTransportFactory()->create("$config->collectorEndpoint/v1/traces", 'application/x-protobuf')
@@ -243,29 +240,6 @@ class Appsignal
             ->buildAndRegisterGlobal();
     }
 
-    public function loadEnv(): bool
-    {
-        if (isset($_ENV['APP_KEY'])) {
-            return true;
-        }
-
-
-        if (is_null($this->basePath)) {
-            return false;
-        }
-
-
-        $envPath = $this->basePath . '/.env';
-
-
-        if (file_exists(filename: $envPath)) {
-            $dotenv = Dotenv::createImmutable($this->basePath);
-            $dotenv->safeLoad();
-            return true;
-        }
-
-        return false;
-    }
     /**
      * @return array<string,string>|array<string,null>|array<null,null>
      */

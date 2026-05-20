@@ -3,6 +3,8 @@
 namespace Appsignal\Testing;
 
 use ArrayObject;
+use Appsignal\Config;
+use Appsignal\Appsignal;
 use OpenTelemetry\API\Instrumentation\Configurator;
 use PHPUnit\Framework\Assert as PHPUnit;
 use OpenTelemetry\Context\ScopeInterface;
@@ -20,6 +22,7 @@ use OpenTelemetry\SDK\Trace\ImmutableSpan;
 use OpenTelemetry\SDK\Trace\SpanExporter\InMemoryExporter as InMemorySpanExporter;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\TracerProvider;
+use OpenTelemetry\SDK\Trace\TracerProviderInterface;
 
 trait CapturesTelemetry
 {
@@ -29,7 +32,7 @@ trait CapturesTelemetry
     /** @var ArrayObject<int, ImmutableSpan> */
     protected ArrayObject $spanStorage;
 
-    protected TracerProvider $tracerProvider;
+    protected TracerProviderInterface $tracerProvider;
 
     /** @var ArrayObject<int, ReadableLogRecord> */
     protected ArrayObject $logStorage;
@@ -42,31 +45,48 @@ trait CapturesTelemetry
 
     protected MeterProviderInterface $meterProvider;
 
+    protected function appsignalConfig(): ?Config
+    {
+        return null;
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
 
+        $resource = null;
+        $config = $this->appsignalConfig();
+        if ($config !== null) {
+            $resource = Appsignal::getInstance()->buildResource($config);
+        }
+
         $this->spanStorage = new ArrayObject();
-        $this->tracerProvider = new TracerProvider(
-            new SimpleSpanProcessor(
-                new InMemorySpanExporter($this->spanStorage),
-            ),
-        );
+        $tracerBuilder = TracerProvider::builder()
+            ->addSpanProcessor(new SimpleSpanProcessor(new InMemorySpanExporter($this->spanStorage)));
+        if ($resource !== null) {
+            $tracerBuilder->setResource($resource);
+        }
+        $this->tracerProvider = $tracerBuilder->build();
 
         $this->logStorage = new ArrayObject();
-        $this->loggerProvider = LoggerProvider::builder()
+        $loggerBuilder = LoggerProvider::builder()
             ->addLogRecordProcessor(
                 new SimpleLogRecordProcessor(
                     new InMemoryLogExporter($this->logStorage),
                 ),
-            )
-            ->build();
+            );
+        if ($resource !== null) {
+            $loggerBuilder->setResource($resource);
+        }
+        $this->loggerProvider = $loggerBuilder->build();
 
         $this->metricExporter = new InMemoryMetricExporter();
         $this->metricReader = new ExportingReader($this->metricExporter);
-        $this->meterProvider = MeterProvider::builder()
-            ->addReader($this->metricReader)
-            ->build();
+        $meterBuilder = MeterProvider::builder()->addReader($this->metricReader);
+        if ($resource !== null) {
+            $meterBuilder->setResource($resource);
+        }
+        $this->meterProvider = $meterBuilder->build();
 
         $this->scope = Configurator::create()
             ->withTracerProvider($this->tracerProvider)
