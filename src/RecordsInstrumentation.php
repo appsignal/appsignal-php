@@ -82,24 +82,44 @@ trait RecordsInstrumentation
         }
     }
 
-    /**
-     * @param array<string, mixed> $params
-     */
-    public static function setParams(array $params): void
+    public static function setParams(mixed $params): void
     {
-        $span = Span::getCurrent();
+        self::setSerializedAttribute('appsignal.request.query_parameters', $params);
+    }
 
-        $span->setAttribute('appsignal.request.query_parameters', json_encode($params));
+    public static function setPayload(mixed $payload): void
+    {
+        self::setSerializedAttribute('appsignal.request.payload', $payload);
+    }
+
+    public static function setSessionData(mixed $sessionData): void
+    {
+        self::setSerializedAttribute('appsignal.request.session_data', $sessionData);
+    }
+
+    public static function setFunctionParams(mixed $params): void
+    {
+        self::setSerializedAttribute('appsignal.function.parameters', $params);
+    }
+
+    public static function setCustomData(mixed $data): void
+    {
+        self::setSerializedAttribute('appsignal.custom_data', $data);
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @param mixed $value Any value except resources
      */
-    public static function setPayload(array $payload): void
+    protected static function setSerializedAttribute(string $key, mixed $value): void
     {
-        $span = Span::getCurrent();
+        $encoded = json_encode($value);
 
-        $span->setAttribute('appsignal.request.payload', json_encode($payload));
+        if ($encoded === false) {
+            // TODO: log serialization failure
+            return;
+        }
+
+        Span::getCurrent()->setAttribute($key, $encoded);
     }
 
     /**
