@@ -5,7 +5,7 @@
 
 require $autoload;
 
-$environment = match(true) {
+$environment = match (true) {
     class_exists(\Illuminate\Foundation\Application::class) => new \Appsignal\Environments\Laravel($projectRoot),
     class_exists(\Symfony\Component\HttpKernel\Kernel::class) => new \Appsignal\Environments\Symfony($projectRoot),
     default => new \Appsignal\Environments\Vanilla($projectRoot),
@@ -14,8 +14,8 @@ $environment = match(true) {
 $config = $environment->getConfig();
 
 if (!$config->isValid()) {
-    echo 'Appsignal config is invalid. Missing: ' . implode(', ', $config->getMissingFields()) . PHP_EOL;
+    echo 'The AppSignal config is invalid. Missing: ' . implode(', ', $config->getMissingFields()) . PHP_EOL;
     exit(1);
 }
 
-echo 'Appsignal config is valid.' . PHP_EOL;
+echo 'The AppSignal config is valid.' . PHP_EOL;

@@ -11,7 +11,7 @@ PROJECT_ROOT="${APPSIGNAL_PROJECT_ROOT:-$(dirname "$(dirname "$(dirname "$PACKAG
 AUTOLOAD="${APPSIGNAL_AUTOLOAD_PATH:-$PROJECT_ROOT/vendor/autoload.php}"
 
 case "${1:-}" in
-	init)
+	install)
 		TARGET_DIR="$PROJECT_ROOT/config"
 		TEMPLATE="$PACKAGE_DIR/config-stubs/appsignal.php"
 		FRAMEWORK=""
@@ -32,7 +32,7 @@ case "${1:-}" in
 
 		mkdir -p "$TARGET_DIR"
 		cp "$TEMPLATE" "$TARGET"
-		echo "Appsignal config file created at $TARGET"
+		echo "The AppSignal config file created at $TARGET"
 
 		if [ "$FRAMEWORK" = "laravel" ]; then
 			echo "Installing open-telemetry/opentelemetry-auto-laravel..."
@@ -49,7 +49,7 @@ case "${1:-}" in
 		echo "Usage: appsignal <command>"
 		echo ""
 		echo "Commands:"
-		echo "  init        Scaffold Appsignal config file and add auto-instrumentations"
-		echo "  validate    Check if Appsignal config is valid"
+		echo "  install     Scaffold the AppSignal config file and add auto-instrumentations"
+		echo "  validate    Check if the AppSignal config is valid"
 		;;
 esac

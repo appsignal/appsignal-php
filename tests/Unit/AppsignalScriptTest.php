@@ -14,23 +14,23 @@ class AppsignalScriptTest extends TestCase
         $output = $this->runScript();
 
         $this->assertStringContainsString('Usage: appsignal <command>', $output);
-        $this->assertStringContainsString('init', $output);
+        $this->assertStringContainsString('install', $output);
         $this->assertStringContainsString('validate', $output);
     }
 
-    public function testInitInVanilla(): void
+    public function testInstallInVanilla(): void
     {
         $projectDir = $this->createProjectDir();
 
-        $output = $this->runScript('init', $projectDir);
+        $output = $this->runScript('install', $projectDir);
 
         $target = "$projectDir/config/appsignal.php";
-        $this->assertStringContainsString("Appsignal config file created at $target", $output);
+        $this->assertStringContainsString("AppSignal config file created at $target", $output);
         $this->assertFileExists($target);
         $this->assertFileEquals(self::$packageDir . '/config-stubs/appsignal.php', $target);
     }
 
-    public function testInitInLaravel(): void
+    public function testInstallInLaravel(): void
     {
         $projectDir = $this->createProjectDir();
         // these files are used to detect environment
@@ -38,73 +38,73 @@ class AppsignalScriptTest extends TestCase
         touch("$projectDir/artisan");
 
         $fakeBin = $this->createComposerStub($projectDir);
-        $output = $this->runScript('init', $projectDir, $fakeBin);
+        $output = $this->runScript('install', $projectDir, $fakeBin);
 
         $target = "$projectDir/config/appsignal.php";
-        $this->assertStringContainsString("Appsignal config file created at $target", $output);
+        $this->assertStringContainsString("AppSignal config file created at $target", $output);
         $this->assertFileExists($target);
         $this->assertFileEquals(self::$packageDir . '/config-stubs/appsignal.laravel.php', $target);
         $this->assertComposerCalled($projectDir, "--working-dir=$projectDir require open-telemetry/opentelemetry-auto-laravel");
     }
 
-    public function testInitInSymfony(): void
+    public function testInstallInSymfony(): void
     {
         $projectDir = $this->createProjectDir();
         // this file is used to detect environment
         touch("$projectDir/symfony.lock");
 
         $fakeBin = $this->createComposerStub($projectDir);
-        $output = $this->runScript('init', $projectDir, $fakeBin);
+        $output = $this->runScript('install', $projectDir, $fakeBin);
 
         $target = "$projectDir/config/appsignal.php";
-        $this->assertStringContainsString("Appsignal config file created at $target", $output);
+        $this->assertStringContainsString("AppSignal config file created at $target", $output);
         $this->assertFileExists($target);
         $this->assertFileEquals(self::$packageDir . '/config-stubs/appsignal.php', $target);
         $this->assertComposerCalled($projectDir, "--working-dir=$projectDir require open-telemetry/opentelemetry-auto-symfony");
     }
 
-    public function testInitInVanillaDoesNotCallComposer(): void
+    public function testInstallInVanillaDoesNotCallComposer(): void
     {
         $projectDir = $this->createProjectDir();
 
         $fakeBin = $this->createComposerStub($projectDir);
-        $this->runScript('init', $projectDir, $fakeBin);
+        $this->runScript('install', $projectDir, $fakeBin);
 
         $this->assertFileDoesNotExist("$projectDir/composer-calls");
     }
 
-    public function testInitSkipsIfConfigAlreadyExists(): void
+    public function testInstallSkipsIfConfigAlreadyExists(): void
     {
         $projectDir = $this->createProjectDir();
         mkdir("$projectDir/config", recursive: true);
         file_put_contents("$projectDir/config/appsignal.php", '<?php return [];');
 
-        $output = $this->runScript('init', $projectDir);
+        $output = $this->runScript('install', $projectDir);
 
         $this->assertStringContainsString('Config file already exists', $output);
         $this->assertEquals('<?php return [];', file_get_contents("$projectDir/config/appsignal.php"));
     }
 
-    public function testInitSkipsIfSymfonyConfigExists(): void
+    public function testInstallSkipsIfSymfonyConfigExists(): void
     {
         $projectDir = $this->createProjectDir();
         touch("$projectDir/symfony.lock");
         mkdir("$projectDir/config", recursive: true);
         file_put_contents("$projectDir/config/appsignal.php", '<?php return [];');
 
-        $output = $this->runScript('init', $projectDir);
+        $output = $this->runScript('install', $projectDir);
 
         $this->assertStringContainsString('Config file already exists', $output);
         $this->assertEquals('<?php return [];', file_get_contents("$projectDir/config/appsignal.php"));
     }
 
-    public function testInitCreatesConfigDirectoryIfMissing(): void
+    public function testInstallCreatesConfigDirectoryIfMissing(): void
     {
         $projectDir = $this->createProjectDir();
 
         $this->assertDirectoryDoesNotExist("$projectDir/config");
 
-        $this->runScript('init', $projectDir);
+        $this->runScript('install', $projectDir);
 
         $this->assertDirectoryExists("$projectDir/config");
         $this->assertFileExists("$projectDir/config/appsignal.php");
@@ -123,7 +123,7 @@ class AppsignalScriptTest extends TestCase
 
         $output = $this->runScript('validate', $projectDir);
 
-        $this->assertStringContainsString('Appsignal config is valid.', $output);
+        $this->assertStringContainsString('The AppSignal config is valid.', $output);
     }
 
     public function testValidateWithMissingConfig(): void
@@ -132,7 +132,7 @@ class AppsignalScriptTest extends TestCase
 
         $output = $this->runScript('validate', $projectDir);
 
-        $this->assertStringContainsString('Appsignal config is invalid.', $output);
+        $this->assertStringContainsString('The AppSignal config is invalid.', $output);
         $this->assertStringContainsString('push_api_key', $output);
         $this->assertStringContainsString('collector_endpoint', $output);
         $this->assertStringContainsString('name', $output);
@@ -150,7 +150,7 @@ class AppsignalScriptTest extends TestCase
 
         $output = $this->runScript('validate', $projectDir);
 
-        $this->assertStringContainsString('Appsignal config is invalid.', $output);
+        $this->assertStringContainsString('The AppSignal config is invalid.', $output);
         $this->assertStringContainsString('push_api_key', $output);
         $this->assertStringContainsString('collector_endpoint', $output);
         $this->assertStringNotContainsString('name', $output);
@@ -171,7 +171,7 @@ class AppsignalScriptTest extends TestCase
 
         $output = $this->runScript('validate', $projectDir);
 
-        $this->assertStringContainsString('Appsignal config is valid.', $output);
+        $this->assertStringContainsString('The AppSignal config is valid.', $output);
     }
 
     protected function runScript(string $command = '', ?string $projectDir = null, ?string $fakeBinDir = null): string
