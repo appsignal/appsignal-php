@@ -84,6 +84,17 @@ class OpenTelemetryResourceConfigTest extends TestCase
         );
     }
 
+    public function testIgnoreLogs(): void
+    {
+        $config = new Config(ignoreLogs: ['^done$', 'Task .* completed successfully']);
+        $attributes = $config->getOtelResourceAttributes();
+
+        $this->assertSame(
+            ['^done$', 'Task .* completed successfully'],
+            $attributes['appsignal.config.ignore_logs'],
+        );
+    }
+
     public function testIgnoreNamespaces(): void
     {
         $config = new Config(ignoreNamespaces: ['health', 'monitoring']);

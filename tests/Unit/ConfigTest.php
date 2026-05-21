@@ -29,6 +29,7 @@ class ConfigTest extends TestCase
             $_ENV['APPSIGNAL_IGNORE_ACTIONS'],
             $_ENV['APPSIGNAL_IGNORE_ERRORS'],
             $_ENV['APPSIGNAL_IGNORE_NAMESPACES'],
+            $_ENV['APPSIGNAL_IGNORE_LOGS'],
             $_ENV['APPSIGNAL_REQUEST_HEADERS'],
             $_ENV['APPSIGNAL_RESPONSE_HEADERS'],
             $_ENV['APPSIGNAL_SEND_FUNCTION_PARAMETERS'],
@@ -100,6 +101,15 @@ class ConfigTest extends TestCase
         $config = new Config()->applyEnvVariables();
 
         $this->assertEquals('my-host', $config->hostname);
+    }
+
+    public function testEnvVariableOverridesIgnoreLogs(): void
+    {
+        $_ENV['APPSIGNAL_IGNORE_LOGS'] = '^done$,Task .* completed successfully';
+
+        $config = new Config()->applyEnvVariables();
+
+        $this->assertEquals(['^done$', 'Task .* completed successfully'], $config->ignoreLogs);
     }
 
     public function testEnvVariableOverridesServiceName(): void

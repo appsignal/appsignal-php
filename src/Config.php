@@ -18,6 +18,7 @@ class Config
      * @param string[] $ignoreActions
      * @param string[] $ignoreErrors
      * @param string[] $ignoreNamespaces
+     * @param string[] $ignoreLogs
      * @param string[]|null $requestHeaders
      * @param string[]|null $responseHeaders
      */
@@ -37,6 +38,7 @@ class Config
         public ?array $ignoreActions = [],
         public ?array $ignoreErrors = [],
         public ?array $ignoreNamespaces = [],
+        public ?array $ignoreLogs = [],
         public ?array $requestHeaders = null,
         public ?array $responseHeaders = null,
         public ?bool $sendFunctionParameters = null,
@@ -135,6 +137,9 @@ class Config
         if (isset($_ENV['APPSIGNAL_IGNORE_NAMESPACES'])) {
             $this->ignoreNamespaces = self::splitCsv($_ENV['APPSIGNAL_IGNORE_NAMESPACES']);
         }
+        if (isset($_ENV['APPSIGNAL_IGNORE_LOGS'])) {
+            $this->ignoreLogs = self::splitCsv($_ENV['APPSIGNAL_IGNORE_LOGS']);
+        }
         if (isset($_ENV['APPSIGNAL_REQUEST_HEADERS'])) {
             $this->requestHeaders = self::splitCsv($_ENV['APPSIGNAL_REQUEST_HEADERS']);
         }
@@ -198,6 +203,7 @@ class Config
                 ignoreActions: self::ensureStringArray($values['ignore_actions'] ?? [], []),
                 ignoreErrors: self::ensureStringArray($values['ignore_errors'] ?? [], []),
                 ignoreNamespaces: self::ensureStringArray($values['ignore_namespaces'] ?? [], []),
+                ignoreLogs: self::ensureStringArray($values['ignore_logs'] ?? [], []),
                 requestHeaders: array_key_exists('request_headers', $values)
                     ? self::ensureStringArray($values['request_headers'], null)
                     : null,
@@ -259,6 +265,9 @@ class Config
         }
         if (count($this->ignoreNamespaces) > 0) {
             $config['appsignal.config.ignore_namespaces'] = $this->ignoreNamespaces;
+        }
+        if (count($this->ignoreLogs) > 0) {
+            $config['appsignal.config.ignore_logs'] = $this->ignoreLogs;
         }
         if ($this->requestHeaders !== null) {
             $config['appsignal.config.request_headers'] = $this->requestHeaders;
