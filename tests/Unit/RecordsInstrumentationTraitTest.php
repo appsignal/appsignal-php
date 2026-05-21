@@ -215,6 +215,66 @@ class RecordsInstrumentationTraitTest extends OpenTelemetryTestCase
     }
 
 
+    public function testSetSessionData(): void
+    {
+        $sessionData = [
+            'user_id' => 42,
+            'role' => 'admin',
+            'nested' => [
+                'key' => 'value',
+            ],
+        ];
+
+        AppsignalStub::instrument(name: 'session-data-span', closure: fn() => AppsignalStub::setSessionData($sessionData));
+
+        $this->assertSpanCreated(
+            name: 'session-data-span',
+            attributes: [
+                'appsignal.request.session_data' => json_encode($sessionData),
+            ],
+        );
+    }
+
+    public function testSetFunctionParams(): void
+    {
+        $params = [
+            'param1' => 'value1',
+            'param2' => 42,
+            'nested' => [
+                'key' => 'value',
+            ],
+        ];
+
+        AppsignalStub::instrument(name: 'function-params-span', closure: fn() => AppsignalStub::setFunctionParams($params));
+
+        $this->assertSpanCreated(
+            name: 'function-params-span',
+            attributes: [
+                'appsignal.function.parameters' => json_encode($params),
+            ],
+        );
+    }
+
+    public function testSetCustomData(): void
+    {
+        $data = [
+            'key1' => 'value1',
+            'key2' => 42,
+            'nested' => [
+                'key' => 'value',
+            ],
+        ];
+
+        AppsignalStub::instrument(name: 'custom-data-span', closure: fn() => AppsignalStub::setCustomData($data));
+
+        $this->assertSpanCreated(
+            name: 'custom-data-span',
+            attributes: [
+                'appsignal.custom_data' => json_encode($data),
+            ],
+        );
+    }
+
     public function testAddCustomData(): void
     {
         AppsignalStub::instrument('some-action', closure: function () {
