@@ -3,6 +3,7 @@
 namespace Appsignal\Tests\Unit;
 
 use Appsignal\Config;
+use Appsignal\OpenTelemetryResourceAttributes;
 use PHPUnit\Framework\TestCase;
 
 class OpenTelemetryResourceConfigTest extends TestCase
@@ -10,7 +11,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testFilterAttributes(): void
     {
         $config = new Config(filterAttributes: ['secret', 'key']);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame(
             ['secret', 'key'],
@@ -21,7 +22,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testFilterFunctionParameters(): void
     {
         $config = new Config(filterFunctionParameters: ['myFunc', 'secretFunc']);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame(
             ['myFunc', 'secretFunc'],
@@ -32,7 +33,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testFilterRequestQueryParameters(): void
     {
         $config = new Config(filterRequestQueryParameters: ['password', 'token']);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame(
             ['password', 'token'],
@@ -43,7 +44,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testFilterRequestPayload(): void
     {
         $config = new Config(filterRequestPayload: ['credit_card', 'ssn']);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame(
             ['credit_card', 'ssn'],
@@ -54,7 +55,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testFilterRequestSessionData(): void
     {
         $config = new Config(filterRequestSessionData: ['session_token', 'user_id']);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame(
             ['session_token', 'user_id'],
@@ -65,7 +66,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testIgnoreActions(): void
     {
         $config = new Config(ignoreActions: ['GET /health', 'GET /ping']);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame(
             ['GET /health', 'GET /ping'],
@@ -76,7 +77,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testIgnoreErrors(): void
     {
         $config = new Config(ignoreErrors: ['RuntimeException']);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame(
             ['RuntimeException'],
@@ -87,7 +88,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testIgnoreLogs(): void
     {
         $config = new Config(ignoreLogs: ['^done$', 'Task .* completed successfully']);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame(
             ['^done$', 'Task .* completed successfully'],
@@ -98,7 +99,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testIgnoreNamespaces(): void
     {
         $config = new Config(ignoreNamespaces: ['health', 'monitoring']);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame(
             ['health', 'monitoring'],
@@ -109,7 +110,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testRequestHeaders(): void
     {
         $config = new Config(requestHeaders: ['x-request-id', 'x-forwarded-for']);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame(
             ['x-request-id', 'x-forwarded-for'],
@@ -120,7 +121,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testEmptyRequestHeadersSet(): void
     {
         $config = new Config(requestHeaders: []);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame(
             [],
@@ -131,7 +132,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testNullRequestHeadersNotSet(): void
     {
         $config = new Config(requestHeaders: null);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertFalse(array_key_exists('appsignal.config.request_headers', $attributes));
     }
@@ -139,7 +140,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testResponseHeaders(): void
     {
         $config = new Config(responseHeaders: ['x-powered-by']);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame(
             ['x-powered-by'],
@@ -150,7 +151,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testEmptyResponseHeadersSet(): void
     {
         $config = new Config(responseHeaders: []);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame(
             [],
@@ -161,7 +162,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testNullResponseHeadersNotSet(): void
     {
         $config = new Config(responseHeaders: null);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertArrayNotHasKey(
             'appsignal.config.response_headers',
@@ -172,7 +173,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testSendFunctionParametersFalse(): void
     {
         $config = new Config(sendFunctionParameters: false);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertFalse(
             $attributes['appsignal.config.send_function_parameters'],
@@ -182,7 +183,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testSendFunctionParametersTrueNotSet(): void
     {
         $config = new Config(sendFunctionParameters: true);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertArrayNotHasKey(
             'appsignal.config.send_function_parameters',
@@ -193,7 +194,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testSendRequestQueryParametersFalse(): void
     {
         $config = new Config(sendRequestQueryParameters: false);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertFalse(
             $attributes['appsignal.config.send_request_query_parameters'],
@@ -203,7 +204,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testSendRequestQueryParametersTrueNotSet(): void
     {
         $config = new Config(sendRequestQueryParameters: true);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertArrayNotHasKey(
             'appsignal.config.send_request_query_parameters',
@@ -214,7 +215,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testSendRequestPayloadFalse(): void
     {
         $config = new Config(sendRequestPayload: false);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertFalse(
             $attributes['appsignal.config.send_request_payload'],
@@ -224,7 +225,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testSendRequestPayloadTrueNotSet(): void
     {
         $config = new Config(sendRequestPayload: true);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertArrayNotHasKey(
             'appsignal.config.send_request_payload',
@@ -235,7 +236,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testSendRequestSessionDataFalse(): void
     {
         $config = new Config(sendRequestSessionData: false);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertFalse(
             $attributes['appsignal.config.send_request_session_data'],
@@ -245,7 +246,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testSendRequestSessionDataTrueNotSet(): void
     {
         $config = new Config(sendRequestSessionData: true);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertArrayNotHasKey(
             'appsignal.config.send_request_session_data',
@@ -256,7 +257,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testRevision(): void
     {
         $config = new Config(revision: 'abc123');
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame('abc123', $attributes['appsignal.config.revision']);
     }
@@ -264,7 +265,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testNullRevisionNotSet(): void
     {
         $config = new Config(revision: null);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertArrayNotHasKey('appsignal.config.revision', $attributes);
     }
@@ -272,7 +273,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testHostname(): void
     {
         $config = new Config(hostname: 'my-host');
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame('my-host', $attributes['host.name']);
     }
@@ -280,7 +281,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testNullHostnameNotSet(): void
     {
         $config = new Config(hostname: null);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertArrayNotHasKey('host.name', $attributes);
     }
@@ -288,7 +289,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testServiceName(): void
     {
         $config = new Config(serviceName: 'my-service');
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertSame('my-service', $attributes['service.name']);
     }
@@ -296,7 +297,7 @@ class OpenTelemetryResourceConfigTest extends TestCase
     public function testNullServiceNameNotSet(): void
     {
         $config = new Config(serviceName: null);
-        $attributes = $config->getOtelResourceAttributes();
+        $attributes = new OpenTelemetryResourceAttributes($config)->toArray();
 
         $this->assertArrayNotHasKey('service.name', $attributes);
     }

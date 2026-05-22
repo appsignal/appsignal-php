@@ -182,7 +182,7 @@ class Appsignal
                         'appsignal.config.revision' => $this->getRevision(),
                         'appsignal.config.language_integration' => 'php',
                         'appsignal.config.app_path' => $this->getBasePath(),
-                        ...$config->getOtelResourceAttributes(),
+                        ...new OpenTelemetryResourceAttributes($config)->toArray(),
                     ])
                 )
             );
