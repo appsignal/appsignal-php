@@ -5,7 +5,7 @@ monolog:
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
             channels: ["!event"]
-        otel:
+        appsignal:
             type: service
-            id: appsignal.monolog.otel_handler
+            id: appsignal.monolog.handler
             channels: ["app"]

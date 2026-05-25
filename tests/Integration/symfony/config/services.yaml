@@ -19,7 +19,7 @@ services:
     App\:
         resource: '../src/'
 
-    appsignal.monolog.otel_handler:
-        class: OpenTelemetry\Contrib\Logs\Monolog\Handler
+    appsignal.monolog.handler:
+        class: Appsignal\Integrations\Monolog\Handler
         factory: ['Appsignal\Integrations\Monolog\Handler', 'withLevel']
         arguments: ['info']
