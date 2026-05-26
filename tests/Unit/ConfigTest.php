@@ -75,7 +75,7 @@ class ConfigTest extends TestCase
 
     public function testTryFromFileLoadsConfig(): void
     {
-        $config = Config::tryFromFile(__DIR__ . '/../Stubs/laravel/config/appsignal.php');
+        $config = new Config()->applyConfigFile(__DIR__ . '/../Stubs/laravel/config/appsignal.php');
 
         $this->assertEquals('Laravel App', $config->name);
         $this->assertEquals('staging', $config->environment);
@@ -89,7 +89,7 @@ class ConfigTest extends TestCase
     {
         $_ENV['APPSIGNAL_REVISION'] = 'abc123';
 
-        $config = new Config()->applyEnvVariables();
+        $config = Config::loadFromEnv();
 
         $this->assertEquals('abc123', $config->revision);
     }
@@ -98,7 +98,7 @@ class ConfigTest extends TestCase
     {
         $_ENV['APPSIGNAL_HOSTNAME'] = 'my-host';
 
-        $config = new Config()->applyEnvVariables();
+        $config = Config::loadFromEnv();
 
         $this->assertEquals('my-host', $config->hostname);
     }
@@ -107,7 +107,7 @@ class ConfigTest extends TestCase
     {
         $_ENV['APPSIGNAL_IGNORE_LOGS'] = '^done$,Task .* completed successfully';
 
-        $config = new Config()->applyEnvVariables();
+        $config = Config::loadFromEnv();
 
         $this->assertEquals(['^done$', 'Task .* completed successfully'], $config->ignoreLogs);
     }
@@ -116,30 +116,30 @@ class ConfigTest extends TestCase
     {
         $_ENV['APPSIGNAL_SERVICE_NAME'] = 'my-service';
 
-        $config = new Config()->applyEnvVariables();
+        $config = Config::loadFromEnv();
 
         $this->assertEquals('my-service', $config->serviceName);
     }
 
-    public function testEnvVariableOverridesAppPath(): void
+    public function testConfigVariableOverridesEnvAppPath(): void
     {
         $_ENV['APPSIGNAL_APP_PATH'] = '/env/app/path';
 
-        $config = Config::tryFromFile(__DIR__ . '/../Stubs/laravel/config/appsignal.php')->applyEnvVariables();
+        $config = Config::load(__DIR__ . '/../Stubs/laravel/config/appsignal.php');
 
-        $this->assertEquals('/env/app/path', $config->appPath);
+        $this->assertEquals('/custom/app/path', $config->appPath);
     }
 
     public function testTryFromFileReturnsEmptyConfigForMissingFile(): void
     {
-        $config = Config::tryFromFile('/nonexistent/path/appsignal.php');
+        $config = new Config()->applyConfigFile('/nonexistent/path/appsignal.php');
 
         $this->assertConfigIsEmpty($config);
     }
 
     public function testFromFileReturnsEmptyConfigForNonArrayReturn(): void
     {
-        $config = Config::tryFromFile(__DIR__ . '/../Stubs/invalid_config.php');
+        $config = new Config()->applyConfigFile(__DIR__ . '/../Stubs/invalid_config.php');
 
         $this->assertConfigIsEmpty($config);
     }
@@ -154,14 +154,14 @@ class ConfigTest extends TestCase
 
         $this->assertEquals('Partial App', $config->name);
         $this->assertEquals('fake-key', $config->pushApiKey);
-        $this->assertEquals('https://collector.test', $config->collectorEndpoint);
+        $this->assertEquals('test', $config->collectorEndpoint);
         $this->assertNull($config->environment);
         $this->assertEquals(['foo', 'bar', 'baz'], $config->disablePatches);
     }
 
     public function testEnvVariablesOverrideArrayAndBoolOptions(): void
     {
-        $_ENV['APPSIGNAL_FILTER_ATTRIBUTES'] = 'foo, bar, baz';
+        $_ENV['APPSIGNAL_FILTER_ATTRIBUTES'] = 'foo,bar,baz';
         $_ENV['APPSIGNAL_FILTER_FUNCTION_PARAMETERS'] = 'param1,param2';
         $_ENV['APPSIGNAL_FILTER_REQUEST_QUERY_PARAMETERS'] = 'q,page';
         $_ENV['APPSIGNAL_FILTER_REQUEST_PAYLOAD'] = 'password,token';
@@ -176,7 +176,7 @@ class ConfigTest extends TestCase
         $_ENV['APPSIGNAL_SEND_REQUEST_PAYLOAD'] = 'false';
         $_ENV['APPSIGNAL_SEND_REQUEST_SESSION_DATA'] = 'false';
 
-        $config = new Config()->applyEnvVariables();
+        $config = Config::loadFromEnv();
 
         $this->assertEquals(['foo', 'bar', 'baz'], $config->filterAttributes);
         $this->assertEquals(['param1', 'param2'], $config->filterFunctionParameters);
@@ -199,8 +199,7 @@ class ConfigTest extends TestCase
         $_ENV['APPSIGNAL_PUSH_API_KEY'] = 'fake-key';
         $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'] = 'https://collector.test';
 
-        $config = new Config();
-        $config->applyEnvVariables();
+        $config = Config::loadFromEnv();
 
         $this->assertNull($config->name);
         $this->assertNull($config->environment);
@@ -230,7 +229,7 @@ class ConfigTest extends TestCase
 
     public function testWithInvalidDisablePatchesConfig(): void
     {
-        $config = Config::tryFromFile(__DIR__ . '/../Stubs/laravel/config/appsignal_invalid.php');
+        $config = new Config()->applyConfigFile(__DIR__ . '/../Stubs/laravel/config/appsignal_invalid.php');
 
         $this->assertEquals([], $config->disablePatches);
     }

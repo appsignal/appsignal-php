@@ -83,232 +83,107 @@ class Config
 
     public static function load(string $configPath): self
     {
-        return self::tryFromFile($configPath)->applyEnvVariables();
+        return self::loadFromEnv()->applyConfigFile($configPath);
     }
 
-    public function applyEnvVariables(): self
+    public static function loadFromEnv(): self
     {
-        if (isset($_ENV['APPSIGNAL_ACTIVE'])) {
-            $this->active = filter_var($_ENV['APPSIGNAL_ACTIVE'], FILTER_VALIDATE_BOOL);
-        }
-        if (isset($_ENV['APPSIGNAL_APP_NAME'])) {
-            $this->name = $_ENV['APPSIGNAL_APP_NAME'];
-        } elseif (isset($_ENV['APP_NAME'])) {
-            $this->name = $_ENV['APP_NAME'];
-        }
-        if (isset($_ENV['APPSIGNAL_APP_ENV'])) {
-            $this->environment = $_ENV['APPSIGNAL_APP_ENV'];
-        } elseif (isset($_ENV['APP_ENV'])) {
-            $this->environment = $_ENV['APP_ENV'];
-        }
-        if (isset($_ENV['APPSIGNAL_PUSH_API_KEY'])) {
-            $this->pushApiKey = $_ENV['APPSIGNAL_PUSH_API_KEY'];
-        }
-        if (isset($_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'])) {
-            $this->collectorEndpoint = $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'];
-        }
-        if (isset($_ENV['APPSIGNAL_APP_PATH'])) {
-            $this->appPath = $_ENV['APPSIGNAL_APP_PATH'];
-        }
-        if (isset($_ENV['APPSIGNAL_DISABLE_PATCHES'])) {
-            $this->disablePatches = self::splitCsv($_ENV['APPSIGNAL_DISABLE_PATCHES']);
-        }
-        if (isset($_ENV['APPSIGNAL_FILTER_ATTRIBUTES'])) {
-            $this->filterAttributes = self::splitCsv($_ENV['APPSIGNAL_FILTER_ATTRIBUTES']);
-        }
-        if (isset($_ENV['APPSIGNAL_FILTER_FUNCTION_PARAMETERS'])) {
-            $this->filterFunctionParameters = self::splitCsv($_ENV['APPSIGNAL_FILTER_FUNCTION_PARAMETERS']);
-        }
-        if (isset($_ENV['APPSIGNAL_FILTER_REQUEST_QUERY_PARAMETERS'])) {
-            $this->filterRequestQueryParameters = self::splitCsv($_ENV['APPSIGNAL_FILTER_REQUEST_QUERY_PARAMETERS']);
-        }
-        if (isset($_ENV['APPSIGNAL_FILTER_REQUEST_PAYLOAD'])) {
-            $this->filterRequestPayload = self::splitCsv($_ENV['APPSIGNAL_FILTER_REQUEST_PAYLOAD']);
-        }
-        if (isset($_ENV['APPSIGNAL_FILTER_REQUEST_SESSION_DATA'])) {
-            $this->filterRequestSessionData = self::splitCsv($_ENV['APPSIGNAL_FILTER_REQUEST_SESSION_DATA']);
-        }
-        if (isset($_ENV['APPSIGNAL_IGNORE_ACTIONS'])) {
-            $this->ignoreActions = self::splitCsv($_ENV['APPSIGNAL_IGNORE_ACTIONS']);
-        }
-        if (isset($_ENV['APPSIGNAL_IGNORE_ERRORS'])) {
-            $this->ignoreErrors = self::splitCsv($_ENV['APPSIGNAL_IGNORE_ERRORS']);
-        }
-        if (isset($_ENV['APPSIGNAL_IGNORE_NAMESPACES'])) {
-            $this->ignoreNamespaces = self::splitCsv($_ENV['APPSIGNAL_IGNORE_NAMESPACES']);
-        }
-        if (isset($_ENV['APPSIGNAL_IGNORE_LOGS'])) {
-            $this->ignoreLogs = self::splitCsv($_ENV['APPSIGNAL_IGNORE_LOGS']);
-        }
-        if (isset($_ENV['APPSIGNAL_REQUEST_HEADERS'])) {
-            $this->requestHeaders = self::splitCsv($_ENV['APPSIGNAL_REQUEST_HEADERS']);
-        }
-        if (isset($_ENV['APPSIGNAL_RESPONSE_HEADERS'])) {
-            $this->responseHeaders = self::splitCsv($_ENV['APPSIGNAL_RESPONSE_HEADERS']);
-        }
-        if (isset($_ENV['APPSIGNAL_SEND_FUNCTION_PARAMETERS'])) {
-            $this->sendFunctionParameters = filter_var($_ENV['APPSIGNAL_SEND_FUNCTION_PARAMETERS'], FILTER_VALIDATE_BOOL);
-        }
-        if (isset($_ENV['APPSIGNAL_SEND_REQUEST_QUERY_PARAMETERS'])) {
-            $this->sendRequestQueryParameters = filter_var($_ENV['APPSIGNAL_SEND_REQUEST_QUERY_PARAMETERS'], FILTER_VALIDATE_BOOL);
-        }
-        if (isset($_ENV['APPSIGNAL_SEND_REQUEST_PAYLOAD'])) {
-            $this->sendRequestPayload = filter_var($_ENV['APPSIGNAL_SEND_REQUEST_PAYLOAD'], FILTER_VALIDATE_BOOL);
-        }
-        if (isset($_ENV['APPSIGNAL_SEND_REQUEST_SESSION_DATA'])) {
-            $this->sendRequestSessionData = filter_var($_ENV['APPSIGNAL_SEND_REQUEST_SESSION_DATA'], FILTER_VALIDATE_BOOL);
-        }
-        if (isset($_ENV['APPSIGNAL_REVISION'])) {
-            $this->revision = $_ENV['APPSIGNAL_REVISION'];
-        }
-        if (isset($_ENV['APPSIGNAL_HOSTNAME'])) {
-            $this->hostname = $_ENV['APPSIGNAL_HOSTNAME'];
-        }
-        if (isset($_ENV['APPSIGNAL_SERVICE_NAME'])) {
-            $this->serviceName = $_ENV['APPSIGNAL_SERVICE_NAME'];
-        }
-        return $this;
+        return new self(
+            active: filter_var($_ENV['APPSIGNAL_ACTIVE'] ?? false, FILTER_VALIDATE_BOOL),
+            name: $_ENV['APPSIGNAL_APP_NAME'] ?? null,
+            environment: $_ENV['APPSIGNAL_APP_ENV'] ?? null,
+            pushApiKey: $_ENV['APPSIGNAL_PUSH_API_KEY'] ?? null,
+            collectorEndpoint: $_ENV['APPSIGNAL_COLLECTOR_ENDPOINT'] ?? null,
+            appPath: $_ENV['APPSIGNAL_APP_PATH'] ?? null,
+            disablePatches: self::splitCsv($_ENV['APPSIGNAL_DISABLE_PATCHES'] ?? ''),
+            filterAttributes: self::splitCsv($_ENV['APPSIGNAL_FILTER_ATTRIBUTES'] ?? ''),
+            filterFunctionParameters: self::splitCsv($_ENV['APPSIGNAL_FILTER_FUNCTION_PARAMETERS'] ?? ''),
+            filterRequestQueryParameters: self::splitCsv($_ENV['APPSIGNAL_FILTER_REQUEST_QUERY_PARAMETERS'] ?? ''),
+            filterRequestPayload: self::splitCsv($_ENV['APPSIGNAL_FILTER_REQUEST_PAYLOAD'] ?? ''),
+            filterRequestSessionData: self::splitCsv($_ENV['APPSIGNAL_FILTER_REQUEST_SESSION_DATA'] ?? ''),
+            ignoreActions: self::splitCsv($_ENV['APPSIGNAL_IGNORE_ACTIONS'] ?? ''),
+            ignoreErrors: self::splitCsv($_ENV['APPSIGNAL_IGNORE_ERRORS'] ?? ''),
+            ignoreNamespaces: self::splitCsv($_ENV['APPSIGNAL_IGNORE_NAMESPACES'] ?? ''),
+            ignoreLogs: self::splitCsv($_ENV['APPSIGNAL_IGNORE_LOGS'] ?? ''),
+            requestHeaders: self::splitCsv($_ENV['APPSIGNAL_REQUEST_HEADERS'] ?? null, fallback: null),
+            responseHeaders: self::splitCsv($_ENV['APPSIGNAL_RESPONSE_HEADERS'] ?? null, fallback: null),
+            sendFunctionParameters: self::ensureBoolOrNull($_ENV['APPSIGNAL_SEND_FUNCTION_PARAMETERS'] ?? null),
+            sendRequestQueryParameters: self::ensureBoolOrNull($_ENV['APPSIGNAL_SEND_REQUEST_QUERY_PARAMETERS'] ?? null),
+            sendRequestPayload: self::ensureBoolOrNull($_ENV['APPSIGNAL_SEND_REQUEST_PAYLOAD'] ?? null),
+            sendRequestSessionData: self::ensureBoolOrNull($_ENV['APPSIGNAL_SEND_REQUEST_SESSION_DATA'] ?? null),
+            revision: $_ENV['APPSIGNAL_REVISION'] ?? null,
+            hostname: $_ENV['APPSIGNAL_HOSTNAME'] ?? null,
+            serviceName: $_ENV['APPSIGNAL_SERVICE_NAME'] ?? null,
+        );
     }
 
     /**
      * Load config from a file that returns an array
+     * and apply to the current instance
      */
-    public static function tryFromFile(string $path): self
+    public function applyConfigFile(string $path): self
     {
         if (!file_exists($path)) {
-            return new self();
+            return $this;
         }
 
         try {
             $values = require $path;
 
             if (!is_array($values)) {
-                return new self();
+                return $this;
             }
-            $disabledPatches = $values['disable_patches'] ?? null;
 
-            return new self(
-                active: $values['active'] ?? null,
-                name: $values['name'] ?? null,
-                environment: $values['environment'] ?? null,
-                pushApiKey: $values['push_api_key'] ?? null,
-                collectorEndpoint: $values['collector_endpoint'] ?? null,
-                appPath: $values['app_path'] ?? null,
-                disablePatches: is_array($disabledPatches) ? $disabledPatches : [],
-                filterAttributes: self::ensureStringArray($values['filter_attributes'] ?? [], []),
-                filterFunctionParameters: self::ensureStringArray($values['filter_function_parameters'] ?? [], []),
-                filterRequestQueryParameters: self::ensureStringArray($values['filter_request_query_parameters'] ?? [], []),
-                filterRequestPayload: self::ensureStringArray($values['filter_request_payload'] ?? [], []),
-                filterRequestSessionData: self::ensureStringArray($values['filter_request_session_data'] ?? [], []),
-                ignoreActions: self::ensureStringArray($values['ignore_actions'] ?? [], []),
-                ignoreErrors: self::ensureStringArray($values['ignore_errors'] ?? [], []),
-                ignoreNamespaces: self::ensureStringArray($values['ignore_namespaces'] ?? [], []),
-                ignoreLogs: self::ensureStringArray($values['ignore_logs'] ?? [], []),
-                requestHeaders: array_key_exists('request_headers', $values)
-                    ? self::ensureStringArray($values['request_headers'], null)
-                    : null,
-                responseHeaders: array_key_exists('response_headers', $values)
-                    ? self::ensureStringArray($values['response_headers'], null)
-                    : null,
-                sendFunctionParameters: array_key_exists('send_function_parameters', $values)
-                    ? (bool) $values['send_function_parameters']
-                    : null,
-                sendRequestQueryParameters: array_key_exists('send_request_query_parameters', $values)
-                    ? (bool) $values['send_request_query_parameters']
-                    : null,
-                sendRequestPayload: array_key_exists('send_request_payload', $values)
-                    ? (bool) $values['send_request_payload']
-                    : null,
-                sendRequestSessionData: array_key_exists('send_request_session_data', $values)
-                    ? (bool) $values['send_request_session_data']
-                    : null,
-                revision: $values['revision'] ?? null,
-                hostname: $values['hostname'] ?? null,
-                serviceName: $values['service_name'] ?? null,
-            );
+            $this->active = $values['active'] ?? $this->active;
+            $this->name = $values['name'] ?? $this->name;
+            $this->environment = $values['environment'] ?? $this->environment;
+            $this->pushApiKey = $values['push_api_key'] ?? $this->pushApiKey;
+            $this->collectorEndpoint = $values['collector_endpoint'] ?? $this->collectorEndpoint;
+            $this->appPath = $values['app_path'] ?? $this->appPath;
+            $this->disablePatches = self::ensureStringArray($values['disable_patches'] ?? null, null) ?? $this->disablePatches;
+            $this->filterAttributes = self::ensureStringArray($values['filter_attributes'] ?? null, null) ?? $this->filterAttributes;
+            $this->filterFunctionParameters = self::ensureStringArray($values['filter_function_parameters'] ?? null, null) ?? $this->filterFunctionParameters;
+            $this->filterRequestQueryParameters = self::ensureStringArray($values['filter_request_query_parameters'] ?? null, null) ?? $this->filterRequestQueryParameters;
+            $this->filterRequestPayload = self::ensureStringArray($values['filter_request_payload'] ?? null, null) ?? $this->filterRequestPayload;
+            $this->filterRequestSessionData = self::ensureStringArray($values['filter_request_session_data'] ?? null, null) ?? $this->filterRequestSessionData;
+            $this->ignoreActions = self::ensureStringArray($values['ignore_actions'] ?? null, null) ?? $this->ignoreActions;
+            $this->ignoreErrors = self::ensureStringArray($values['ignore_errors'] ?? null, null) ?? $this->ignoreErrors;
+            $this->ignoreNamespaces = self::ensureStringArray($values['ignore_namespaces'] ?? null, null) ?? $this->ignoreNamespaces;
+            $this->ignoreLogs = self::ensureStringArray($values['ignore_logs'] ?? null, null) ?? $this->ignoreLogs;
+            $this->requestHeaders = self::ensureStringArray($values['request_headers'] ?? null, null) ?? $this->requestHeaders;
+            $this->responseHeaders = self::ensureStringArray($values['response_headers'] ?? null, null) ?? $this->responseHeaders;
+            $this->sendFunctionParameters = self::ensureBoolOrNull($values['send_function_parameters'] ?? null) ?? $this->sendFunctionParameters;
+            $this->sendRequestQueryParameters = self::ensureBoolOrNull($values['send_request_query_parameters'] ?? null) ?? $this->sendRequestQueryParameters;
+            $this->sendRequestPayload = self::ensureBoolOrNull($values['send_request_payload'] ?? null) ?? $this->sendRequestPayload;
+            $this->sendRequestSessionData = self::ensureBoolOrNull($values['send_request_session_data'] ?? null) ?? $this->sendRequestSessionData;
+            $this->revision = $values['revision'] ?? $this->revision;
+            $this->hostname = $values['hostname'] ?? $this->hostname;
+            $this->serviceName = $values['service_name'] ?? $this->serviceName;
+
+            return $this;
         } catch (Throwable $e) {
-            return new self();
+            return $this;
         }
-    }
-
-    /**
-     * @return array<string, string|string[]|false|null>
-     */
-    public function getOtelResourceAttributes(): array
-    {
-        $config = [
-            'appsignal.config.name' => $this->name,
-            'appsignal.config.environment' => $this->environment,
-            'appsignal.config.push_api_key' => $this->pushApiKey,
-        ];
-
-        if (count($this->filterAttributes) > 0) {
-            $config['appsignal.config.filter_attributes'] = $this->filterAttributes;
-        }
-        if (count($this->filterFunctionParameters) > 0) {
-            $config['appsignal.config.filter_function_parameters'] = $this->filterFunctionParameters;
-        }
-        if (count($this->filterRequestQueryParameters) > 0) {
-            $config['appsignal.config.filter_request_query_parameters'] = $this->filterRequestQueryParameters;
-        }
-        if (count($this->filterRequestPayload) > 0) {
-            $config['appsignal.config.filter_request_payload'] = $this->filterRequestPayload;
-        }
-        if (count($this->filterRequestSessionData) > 0) {
-            $config['appsignal.config.filter_request_session_data'] = $this->filterRequestSessionData;
-        }
-        if (count($this->ignoreActions) > 0) {
-            $config['appsignal.config.ignore_actions'] = $this->ignoreActions;
-        }
-        if (count($this->ignoreErrors) > 0) {
-            $config['appsignal.config.ignore_errors'] = $this->ignoreErrors;
-        }
-        if (count($this->ignoreNamespaces) > 0) {
-            $config['appsignal.config.ignore_namespaces'] = $this->ignoreNamespaces;
-        }
-        if (count($this->ignoreLogs) > 0) {
-            $config['appsignal.config.ignore_logs'] = $this->ignoreLogs;
-        }
-        if ($this->requestHeaders !== null) {
-            $config['appsignal.config.request_headers'] = $this->requestHeaders;
-        }
-        if ($this->responseHeaders !== null) {
-            $config['appsignal.config.response_headers'] = $this->responseHeaders;
-        }
-        if ($this->sendFunctionParameters === false) {
-            $config['appsignal.config.send_function_parameters'] = false;
-        }
-        if ($this->sendRequestQueryParameters === false) {
-            $config['appsignal.config.send_request_query_parameters'] = false;
-        }
-        if ($this->sendRequestPayload === false) {
-            $config['appsignal.config.send_request_payload'] = false;
-        }
-        if ($this->sendRequestSessionData === false) {
-            $config['appsignal.config.send_request_session_data'] = false;
-        }
-        if ($this->revision !== null) {
-            $config['appsignal.config.revision'] = $this->revision;
-        }
-        if ($this->hostname !== null) {
-            $config['host.name'] = $this->hostname;
-        }
-        if ($this->serviceName !== null) {
-            $config['service.name'] = $this->serviceName;
-        }
-
-        return $config;
     }
 
     /**
      * @return string[]
      */
-    private static function splitCsv(string $value): array
+    private static function splitCsv(?string $value, mixed $fallback = null): ?array
     {
+        if (is_null($value)) {
+            return $fallback;
+        }
+
         if ($value === '') {
             return [];
         }
         return array_map('trim', explode(',', $value));
+    }
+
+    protected static function ensureBoolOrNull(mixed $value): ?bool
+    {
+        return filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
     }
 
     /**
@@ -319,6 +194,10 @@ class Config
      */
     protected static function ensureStringArray($items, $fallback): ?array
     {
+        if (!is_array($items)) {
+            return $fallback;
+        }
+
         $allStrings = true;
         foreach ($items as $value) {
             if (!is_string($value)) {
