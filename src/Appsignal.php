@@ -36,6 +36,7 @@ class Appsignal
     protected ?string $basePath = null;
     protected ?string $framework = null;
     protected ?Environment $environment = null;
+    protected ?Config $config = null;
 
     public static function getInstance(): self
     {
@@ -65,6 +66,33 @@ class Appsignal
     public function setFramework(?string $framework): void
     {
         $this->framework = $framework;
+    }
+
+    public function getFramework(): string
+    {
+        return $this->framework;
+    }
+
+    public function loadConfig(bool $forceReload = false): ?Config
+    {
+        if (!$forceReload && $this->config !== null) {
+            return $this->config;
+        }
+
+        $environment = $this->detectEnvironment();
+
+        if ($environment === null) {
+            return null;
+        }
+
+        $this->environment = $environment;
+        $this->config = $environment->getConfig();
+        return $this->config;
+    }
+
+    public function setConfig(Config $config): void
+    {
+        $this->config = $config;
     }
 
     protected function detectEnvironment(): ?Environment
@@ -132,7 +160,7 @@ class Appsignal
             return;
         }
 
-        $environment = $this->detectEnvironment();
+        $environment = $this->environment ?? $this->detectEnvironment();
 
         if (is_null($environment)) {
             trigger_error(
@@ -143,7 +171,8 @@ class Appsignal
             return;
         }
 
-        $config = $environment->getConfig();
+        $this->environment = $environment;
+        $config = $this->config ?? $environment->getConfig();
 
         if (!$config->isValid()) {
             $missing = $config->getMissingFields();
