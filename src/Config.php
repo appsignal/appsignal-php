@@ -81,6 +81,9 @@ class Config
         return $missing;
     }
 
+    /**
+     * @param array<string, mixed> $overrides
+     */
     public function withOverrides(array $overrides): self
     {
         $clone = clone $this;

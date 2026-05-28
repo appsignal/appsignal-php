@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DemoCommand extends Command
 {
     public function __construct(
-        private readonly string $projectRoot,
+        private readonly string $appPath,
     ) {
         parent::__construct();
     }
@@ -29,6 +29,7 @@ class DemoCommand extends Command
         $_ENV['APPSIGNAL_ACTIVE'] = 'true';
 
         $appsignal = Appsignal::getInstance();
+        $appsignal->setBasePath($this->appPath);
         $appsignal->initialize();
 
         LoggerHolder::set($logCatcher = new LogCatcher());
@@ -79,6 +80,7 @@ class DemoCommand extends Command
             });
         });
 
+        // @phpstan-ignore if.alwaysFalse
         if ($logCatcher->hasErrors()) {
             $output->writeln(' <fg=red>Error:</> Failed to reach AppSignal. Check push_api_key and collector_endpoint configuration.');
             return Command::FAILURE;
