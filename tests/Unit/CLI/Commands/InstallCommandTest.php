@@ -28,6 +28,7 @@ class InstallCommandTest extends CommandTestCase
             '--push_api_key' => 'test-key',
             '--collector_endpoint' => 'https://collector.test',
             '--app_name' => 'Test App',
+            '--app_environment' => 'production',
             '--skip-demo' => true,
         ]);
 
@@ -46,6 +47,7 @@ class InstallCommandTest extends CommandTestCase
             '--push_api_key' => 'test-key',
             '--collector_endpoint' => 'https://collector.test',
             '--app_name' => 'Test App',
+            '--app_environment' => 'production',
             '--skip-demo' => true,
         ]);
 
@@ -63,6 +65,7 @@ class InstallCommandTest extends CommandTestCase
             '--push_api_key' => 'test-key',
             '--collector_endpoint' => 'https://collector.test',
             '--app_name' => 'Test App',
+            '--app_environment' => 'production',
         ]);
 
         $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
@@ -70,6 +73,7 @@ class InstallCommandTest extends CommandTestCase
         $this->assertStringContainsString('APPSIGNAL_PUSH_API_KEY=test-key', $envContents);
         $this->assertStringContainsString('APPSIGNAL_COLLECTOR_ENDPOINT=https://collector.test', $envContents);
         $this->assertStringContainsString('APPSIGNAL_APP_NAME=Test App', $envContents);
+        $this->assertStringContainsString('APPSIGNAL_APP_ENV=production', $envContents);
     }
 
     public function testSkipsUpdatingEnvFileWhenDemoFails(): void
@@ -81,6 +85,7 @@ class InstallCommandTest extends CommandTestCase
             '--push_api_key' => 'test-key',
             '--collector_endpoint' => 'https://collector.test',
             '--app_name' => 'Test App',
+            '--app_environment' => 'production',
         ]);
 
         $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
@@ -88,6 +93,7 @@ class InstallCommandTest extends CommandTestCase
         $this->assertStringNotContainsString('APPSIGNAL_PUSH_API_KEY', $envContents);
         $this->assertStringNotContainsString('APPSIGNAL_COLLECTOR_ENDPOINT', $envContents);
         $this->assertStringNotContainsString('APPSIGNAL_APP_NAME', $envContents);
+        $this->assertStringNotContainsString('APPSIGNAL_APP_ENV', $envContents);
     }
 
 
