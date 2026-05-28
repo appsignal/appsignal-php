@@ -225,17 +225,19 @@ class Appsignal
 
         $resource = $this->buildResource($config);
 
+        $otlpProtocol = $_ENV['_APPSIGNAL_OTLP_PROTOCOL'] ?? 'application/x-protobuf';
+
         $spanExporter = new SpanExporter(
-            new OtlpHttpTransportFactory()->create("$config->collectorEndpoint/v1/traces", 'application/x-protobuf')
+            new OtlpHttpTransportFactory()->create("$config->collectorEndpoint/v1/traces", $otlpProtocol)
         );
 
         $logExporter = new LogsExporter(
-            new OtlpHttpTransportFactory()->create("$config->collectorEndpoint/v1/logs", 'application/x-protobuf')
+            new OtlpHttpTransportFactory()->create("$config->collectorEndpoint/v1/logs", $otlpProtocol)
         );
 
         $reader = new ExportingReader(
             new MetricExporter(
-                new OtlpHttpTransportFactory()->create("$config->collectorEndpoint/v1/metrics", 'application/x-protobuf')
+                new OtlpHttpTransportFactory()->create("$config->collectorEndpoint/v1/metrics", $otlpProtocol)
             )
         );
 

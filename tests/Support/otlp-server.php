@@ -23,9 +23,12 @@ while (true) {
             break;
         }
     }
-    // Respond with 200.
+    // Respond with 200. JSON requests need a valid JSON body; protobuf accepts empty.
     // In the future we might capture the output,
     // write to file and make assertions against it.
-    fwrite($conn, "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n");
+    $isJson = (bool) preg_match('/^Content-Type:\s*application\/json/im', $raw);
+    $body = $isJson ? '{}' : '';
+    $length = strlen($body);
+    fwrite($conn, "HTTP/1.1 200 OK\r\nContent-Length: $length\r\n\r\n$body");
     fclose($conn);
 }

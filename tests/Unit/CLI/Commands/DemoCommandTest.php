@@ -47,6 +47,8 @@ class DemoCommandTest extends CommandTestCase
     {
         $projectDir = $this->createProjectDir();
 
+        $_ENV['_APPSIGNAL_OTLP_PROTOCOL'] = 'application/json';
+
         Appsignal::getInstance()->setConfig(new Config(
             active: true,
             name: 'Test App',
@@ -56,10 +58,7 @@ class DemoCommandTest extends CommandTestCase
         ));
 
         $tester = new CommandTester(new DemoCommand($projectDir));
-        // google/protobuf triggers chr() deprecations on PHP 8.5; suppress vendor noise
-        set_error_handler(fn() => true, E_DEPRECATED);
         $tester->execute([]);
-        restore_error_handler();
 
         $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
         $this->assertStringContainsString('Finished sending data to AppSignal', $tester->getDisplay());
