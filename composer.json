@@ -25,7 +25,9 @@
         "symfony/routing": "^8.0",
         "symfony/http-kernel": "^8.0",
         "mockery/mockery": "^1.6",
-        "friendsofphp/php-cs-fixer": "^3.94"
+        "friendsofphp/php-cs-fixer": "^3.94",
+        "symfony/http-client": "^8.0",
+        "nyholm/psr7": "^1.8"
     },
     "autoload": {
         "psr-4": {
