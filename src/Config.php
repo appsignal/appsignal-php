@@ -81,6 +81,20 @@ class Config
         return $missing;
     }
 
+    /**
+     * @param array<string, mixed> $overrides
+     */
+    public function withOverrides(array $overrides): self
+    {
+        $clone = clone $this;
+        foreach ($overrides as $key => $value) {
+            if ($value !== null && property_exists($clone, $key)) {
+                $clone->$key = $value;
+            }
+        }
+        return $clone;
+    }
+
     public static function load(string $configPath): self
     {
         return self::loadFromEnv()->applyConfigFile($configPath);
