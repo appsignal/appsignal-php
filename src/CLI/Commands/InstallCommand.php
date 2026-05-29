@@ -4,6 +4,7 @@ namespace Appsignal\CLI\Commands;
 
 use Appsignal\Config;
 use Appsignal\Appsignal;
+use Appsignal\CLI\Application;
 use Composer\InstalledVersions;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressIndicator;
@@ -38,13 +39,17 @@ class InstallCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $version = InstalledVersions::getPrettyVersion("appsignal/appsignal-php");
+        /** @var Application $cli */
+        $cli = $this->getApplication();
+        $cli->setInternalConfig([
+            DemoCommand::CONFIG_SHOW_COLLECTOR_INFO => true,
+        ]);
 
         $output->writeln("    _             ___ _                _ ");
         $output->writeln("   /_\  _ __ _ __/ __(_)__ _ _ _  __ _| |");
         $output->writeln("  / _ \| '_ \ '_ \__ \ / _` | ' \/ _` | |");
         $output->writeln(" /_/ \_\ .__/ .__/___/_\__, |_||_\__,_|_|");
         $output->writeln("       |_|  |_|        |___/             ");
-
 
         $output->writeln("");
         $output->writeln(" <fg=default;bg=yellow> Info </> Running <info>AppSignal for PHP {$version}</info> installer");
@@ -72,7 +77,6 @@ class InstallCommand extends Command
                 cwd: $this->appPath,
             );
             $exitCode = $command->run();
-
 
             if ($exitCode === 0) {
                 $output->writeln(" - Found auto-instrumentation package, skipping installation");
@@ -105,7 +109,7 @@ class InstallCommand extends Command
                 mkdir($configTargetDir, 0o755, true);
             }
             copy($configTemplate, $configTarget);
-            $output->writeln(" ✔ Created AppSignal config file <fg=gray>$configTarget</>");
+            $output->writeln(" ✔ Created AppSignal config file <fg=gray>.env</>");
             // reload config
             $config = $appsignal->loadConfig(forceReload: true);
         } else {
@@ -178,8 +182,6 @@ class InstallCommand extends Command
         } else {
             $output->writeln(" ✔ App environment");
         }
-
-
 
         $newConfig = $config->withOverrides([
             'active' => true,

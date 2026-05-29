@@ -4,6 +4,7 @@ namespace Appsignal\CLI\Commands;
 
 use Appsignal\Appsignal;
 use Appsignal\CLI\LogCatcher;
+use Appsignal\CLI\Application;
 use OpenTelemetry\API\LoggerHolder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressIndicator;
@@ -13,6 +14,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DemoCommand extends Command
 {
+    public const CONFIG_SHOW_COLLECTOR_INFO = 'demo.show_collector_info';
+
     public function __construct(
         private readonly string $appPath,
     ) {
@@ -30,16 +33,21 @@ class DemoCommand extends Command
         $_ENV['APPSIGNAL_ACTIVE'] = 'true';
         $io = new SymfonyStyle($input, $output);
 
+        /** @var Application $cli */
+        $cli = $this->getApplication();
+        $showCollectorInfo = $cli->getInternalConfig(self::CONFIG_SHOW_COLLECTOR_INFO, false);
+
         $appsignal = Appsignal::getInstance();
         $appsignal->setBasePath($this->appPath);
         $appsignal->initialize();
+
         $config = $appsignal->loadConfig();
 
         LoggerHolder::set($logCatcher = new LogCatcher());
 
         $output->writeln('<fg=gray>AppSignal demo</>');
 
-        if ($config->usingHostedCollector()) {
+        if ($showCollectorInfo && $config->usingHostedCollector()) {
             $output->writeln(" ! Using a <fg=white;options=bold>Hosted collector</></>.");
             $io->block("This option is ideal for most users — it requires no setup or maintenance, and incurs no infrastructure costs.\nIf you have advanced needs, you can opt for a Self-hosted collector, which offers enhanced privacy, greater compliance flexibility, and access to additional metrics.", prefix: "   ", style: 'fg=yellow');
             $io->block("To learn more, visit https://docs.appsignal.com/collector/hosted-vs-self-hosted.html", prefix: "   ", style: "fg=yellow");
@@ -98,7 +106,6 @@ class DemoCommand extends Command
 
         $output->writeln(' ✔ <fg=green>Finished sending data to AppSignal</>');
 
-        $output->writeln('');
         $io->block("It may take around a minute for the data to appear on https://appsignal.com/accounts", prefix: "   ");
 
         return Command::SUCCESS;

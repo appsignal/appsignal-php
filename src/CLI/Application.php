@@ -11,9 +11,36 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Application extends BaseApplication
 {
+    /** @var array<string, mixed> */
+    protected array $internalConfig = [];
+
     public function getHelp(): string
     {
         return '';
+    }
+
+    public function getInternalConfig(string $key, mixed $default = null): mixed
+    {
+        return $this->internalConfig[$key] ?? $default;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function setInternalConfig(array $config): void
+    {
+        $this->internalConfig = array_merge($this->internalConfig, $config);
+    }
+
+    public function clearInternalConfig(string ...$keys): void
+    {
+        if (empty($keys)) {
+            $this->internalConfig = [];
+        } else {
+            foreach ($keys as $key) {
+                unset($this->internalConfig[$key]);
+            }
+        }
     }
 
     protected function getDefaultInputDefinition(): InputDefinition
