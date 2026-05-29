@@ -246,23 +246,23 @@ trait CapturesTelemetry
         );
     }
 
-    protected function assertLogNotCreated(string $body): void
+    protected function assertLogNotCreated(string $message): void
     {
         $found = false;
 
         foreach ($this->getLogs() as $log) {
-            if ($log->getBody() === $body) {
+            if ($log->getBody() === $message) {
                 $found = true;
                 break;
             }
         }
 
-        PHPUnit::assertFalse($found, sprintf('Unexpected log with body "%s" was found.', $body));
+        PHPUnit::assertFalse($found, sprintf('Unexpected log with body "%s" was found.', $message));
     }
 
     /** @param array<string, mixed> $attributes */
     protected function assertLogCreated(
-        ?string $body = null,
+        ?string $message = null,
         ?string $severity = null,
         ?array $attributes = [],
         ?string $loggerName = null,
@@ -271,7 +271,7 @@ trait CapturesTelemetry
         $found = false;
 
         foreach ($logs as $log) {
-            if ($body !== null && $log->getBody() !== $body) {
+            if ($message !== null && $log->getBody() !== $message) {
                 continue;
             }
 
@@ -295,7 +295,7 @@ trait CapturesTelemetry
 
         PHPUnit::assertTrue($found, sprintf(
             'No log%s%s found. Logs: [%s]',
-            $body !== null ? sprintf(' with body "%s"', $body) : '',
+            $message !== null ? sprintf(' with body "%s"', $message) : '',
             $attributes ? ' with attributes ' . json_encode($attributes) : '',
             implode(', ', array_map(fn($l) => sprintf('"%s"', $l->getBody()), $logs)),
         ));

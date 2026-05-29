@@ -54,8 +54,8 @@ class DemoCommand extends Command
                 closure: function () {
                     sleep(2);
                     Appsignal::log(
-                        body: 'This is an AppSignal demo log message.',
-                        severity: \OpenTelemetry\API\Logs\Severity::INFO,
+                        message: 'This is an AppSignal demo log message.',
+                        severity: \Appsignal\Severity::INFO,
                         attributes: ['type' => 'appsignal_demo'],
                     );
                 },

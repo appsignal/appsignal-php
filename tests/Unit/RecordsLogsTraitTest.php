@@ -3,19 +3,19 @@
 namespace Appsignal\Tests\Unit;
 
 use Appsignal\RecordsLogs;
-use OpenTelemetry\API\Logs\Severity;
+use Appsignal\Severity;
 
 class RecordsLogsTraitTest extends OpenTelemetryTestCase
 {
     public function test_log(): void
     {
         AppsignalWithLogs::log(
-            body: "Something's gone terribly wrong here",
+            message: "Something's gone terribly wrong here",
             severity: Severity::WARN
         );
 
         $this->assertLogCreated(
-            body: "Something's gone terribly wrong here",
+            message: "Something's gone terribly wrong here",
             severity: 'WARN',
         );
     }
@@ -23,12 +23,12 @@ class RecordsLogsTraitTest extends OpenTelemetryTestCase
     public function test_log_with_custom_logger_name(): void
     {
         AppsignalWithLogs::log(
-            body: 'Custom logger message',
+            message: 'Custom logger message',
             loggerName: 'my-app',
         );
 
         $this->assertLogCreated(
-            body: 'Custom logger message',
+            message: 'Custom logger message',
             loggerName: 'my-app',
         );
     }
@@ -40,7 +40,7 @@ class RecordsLogsTraitTest extends OpenTelemetryTestCase
         $this->detachScope();
 
         AppsignalWithLogs::log(
-            body: "Should not log this message",
+            message: "Should not log this message",
         );
 
         $this->assertLogNotCreated("Should not log this message");

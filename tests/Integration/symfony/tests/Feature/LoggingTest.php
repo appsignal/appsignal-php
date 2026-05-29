@@ -11,7 +11,7 @@ class LoggingTest extends TestCase
         $this->get('/log');
 
         $this->assertLogCreated(
-            body: 'My log',
+            message: 'My log',
             severity: 'INFO',
         );
     }
@@ -22,7 +22,7 @@ class LoggingTest extends TestCase
 
         $this->assertLogCreated(
             severity: 'INFO',
-            body: 'My log with attributes',
+            message: 'My log with attributes',
             attributes: ['context' => ['foo' => 'bar']],
         );
     }
