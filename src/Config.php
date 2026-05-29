@@ -180,6 +180,16 @@ class Config
         }
     }
 
+    public function usingHostedCollector(): bool
+    {
+        return self::isHostedCollector($this->collectorEndpoint ?? "");
+    }
+
+    public static function isHostedCollector(?string $endpoint = ""): bool
+    {
+        return str_contains($endpoint, 'collector.staging.lol') || str_contains($endpoint, 'appsignal-collector.net');
+    }
+
     /**
      * @return string[]
      */

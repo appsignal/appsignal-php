@@ -2,7 +2,9 @@
 
 namespace Appsignal\CLI\Commands;
 
+use Appsignal\Config;
 use Appsignal\Appsignal;
+use Appsignal\CLI\Application;
 use Composer\InstalledVersions;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressIndicator;
@@ -37,13 +39,17 @@ class InstallCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $version = InstalledVersions::getPrettyVersion("appsignal/appsignal-php");
+        /** @var Application $cli */
+        $cli = $this->getApplication();
+        $cli->setInternalConfig([
+            DemoCommand::CONFIG_SHOW_COLLECTOR_INFO => true,
+        ]);
 
         $output->writeln("    _             ___ _                _ ");
         $output->writeln("   /_\  _ __ _ __/ __(_)__ _ _ _  __ _| |");
         $output->writeln("  / _ \| '_ \ '_ \__ \ / _` | ' \/ _` | |");
         $output->writeln(" /_/ \_\ .__/ .__/___/_\__, |_||_\__,_|_|");
         $output->writeln("       |_|  |_|        |___/             ");
-
 
         $output->writeln("");
         $output->writeln(" <fg=default;bg=yellow> Info </> Running <info>AppSignal for PHP {$version}</info> installer");
@@ -71,7 +77,6 @@ class InstallCommand extends Command
                 cwd: $this->appPath,
             );
             $exitCode = $command->run();
-
 
             if ($exitCode === 0) {
                 $output->writeln(" - Found auto-instrumentation package, skipping installation");
@@ -104,7 +109,7 @@ class InstallCommand extends Command
                 mkdir($configTargetDir, 0o755, true);
             }
             copy($configTemplate, $configTarget);
-            $output->writeln(" ✔ Created AppSignal config file <fg=gray>$configTarget</>");
+            $output->writeln(" ✔ Created AppSignal config file <fg=gray>.env</>");
             // reload config
             $config = $appsignal->loadConfig(forceReload: true);
         } else {
@@ -131,10 +136,12 @@ class InstallCommand extends Command
                 $input,
                 $output,
                 new Question(
-                    question: ' Enter your Push API key' . ($config->pushApiKey ? " <fg=gray>[$config->pushApiKey]</>: " : ": "),
+                    question: '   Enter your Push API key' . ($config->pushApiKey ? " <fg=gray>[$config->pushApiKey]</>: " : ": "),
                     default: $config->pushApiKey,
                 ),
             );
+        } else {
+            $output->writeln(" ✔ Push API key");
         }
 
         if (!$collectorEndpoint) {
@@ -142,10 +149,12 @@ class InstallCommand extends Command
                 $input,
                 $output,
                 new Question(
-                    question: ' Collector endpoint' . ($config->collectorEndpoint ? " <fg=gray>[$config->collectorEndpoint]</>: " : ": "),
+                    question: '   Collector endpoint' . ($config->collectorEndpoint ? " <fg=gray>[$config->collectorEndpoint]</>: " : ": "),
                     default: $config->collectorEndpoint
                 )
             );
+        } else {
+            $output->writeln(" ✔ Collector endpoint" . (Config::isHostedCollector($collectorEndpoint) ? " <fg=gray>hosted collector</>" : ""));
         }
 
         if (!$appName) {
@@ -153,10 +162,12 @@ class InstallCommand extends Command
                 $input,
                 $output,
                 new Question(
-                    question: ' App name' . ($config->name ? " <fg=gray>[$config->name]</>: " : ": "),
+                    question: '   App name' . ($config->name ? " <fg=gray>[$config->name]</>: " : ": "),
                     default: $config->name,
                 ),
             );
+        } else {
+            $output->writeln(" ✔ App name");
         }
 
         if (!$appEnvironment) {
@@ -164,10 +175,12 @@ class InstallCommand extends Command
                 $input,
                 $output,
                 new Question(
-                    question: ' App environment' . ($config->environment ? " <fg=gray>[$config->environment]</>: " : ": "),
+                    question: '   App environment' . ($config->environment ? " <fg=gray>[$config->environment]</>: " : ": "),
                     default: $config->environment,
                 ),
             );
+        } else {
+            $output->writeln(" ✔ App environment");
         }
 
         $newConfig = $config->withOverrides([
@@ -190,6 +203,7 @@ class InstallCommand extends Command
         }
 
         if ($shouldUpdateEnv) {
+            $output->writeln("<fg=gray>Save configuration</>");
             $envFile = $this->appPath . '/.env';
             touch($envFile);
             $envContents = file_get_contents($envFile);

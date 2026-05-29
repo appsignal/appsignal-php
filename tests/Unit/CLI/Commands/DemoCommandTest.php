@@ -3,6 +3,7 @@
 namespace Appsignal\Tests\Unit\CLI\Commands;
 
 use Appsignal\Appsignal;
+use Appsignal\CLI\Application;
 use Appsignal\CLI\Commands\DemoCommand;
 use Appsignal\Config;
 use Appsignal\Tests\Support\CapturesOTLPRequests;
@@ -33,7 +34,9 @@ class DemoCommandTest extends CommandTestCase
 
         // Suppress warning which we trigger in Appsignal::initialize()
         set_error_handler(fn() => true, E_USER_WARNING);
-        $tester = new CommandTester(new DemoCommand($projectDir));
+        $cli = new Application();
+        $cli->addCommand(new DemoCommand($projectDir));
+        $tester = new CommandTester($cli->find('demo'));
         $tester->execute([]);
         restore_error_handler();
 
@@ -57,7 +60,10 @@ class DemoCommandTest extends CommandTestCase
             collectorEndpoint: 'http://127.0.0.1:' . self::$otlpPort,
         ));
 
-        $tester = new CommandTester(new DemoCommand($projectDir));
+        $cli = new Application();
+        $cli->addCommand(new DemoCommand($projectDir));
+        $tester = new CommandTester($cli->find('demo'));
+
         $tester->execute([]);
 
         $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
