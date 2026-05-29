@@ -2,6 +2,7 @@
 
 namespace Appsignal\CLI\Commands;
 
+use Appsignal\Config;
 use Appsignal\Appsignal;
 use Composer\InstalledVersions;
 use Symfony\Component\Console\Command\Command;
@@ -131,10 +132,12 @@ class InstallCommand extends Command
                 $input,
                 $output,
                 new Question(
-                    question: ' Enter your Push API key' . ($config->pushApiKey ? " <fg=gray>[$config->pushApiKey]</>: " : ": "),
+                    question: '   Enter your Push API key' . ($config->pushApiKey ? " <fg=gray>[$config->pushApiKey]</>: " : ": "),
                     default: $config->pushApiKey,
                 ),
             );
+        } else {
+            $output->writeln(" ✔ Push API key");
         }
 
         if (!$collectorEndpoint) {
@@ -142,10 +145,12 @@ class InstallCommand extends Command
                 $input,
                 $output,
                 new Question(
-                    question: ' Collector endpoint' . ($config->collectorEndpoint ? " <fg=gray>[$config->collectorEndpoint]</>: " : ": "),
+                    question: '   Collector endpoint' . ($config->collectorEndpoint ? " <fg=gray>[$config->collectorEndpoint]</>: " : ": "),
                     default: $config->collectorEndpoint
                 )
             );
+        } else {
+            $output->writeln(" ✔ Collector endpoint" . (Config::isHostedCollector($collectorEndpoint) ? " <fg=gray>hosted collector</>" : ""));
         }
 
         if (!$appName) {
@@ -153,10 +158,12 @@ class InstallCommand extends Command
                 $input,
                 $output,
                 new Question(
-                    question: ' App name' . ($config->name ? " <fg=gray>[$config->name]</>: " : ": "),
+                    question: '   App name' . ($config->name ? " <fg=gray>[$config->name]</>: " : ": "),
                     default: $config->name,
                 ),
             );
+        } else {
+            $output->writeln(" ✔ App name");
         }
 
         if (!$appEnvironment) {
@@ -164,11 +171,15 @@ class InstallCommand extends Command
                 $input,
                 $output,
                 new Question(
-                    question: ' App environment' . ($config->environment ? " <fg=gray>[$config->environment]</>: " : ": "),
+                    question: '   App environment' . ($config->environment ? " <fg=gray>[$config->environment]</>: " : ": "),
                     default: $config->environment,
                 ),
             );
+        } else {
+            $output->writeln(" ✔ App environment");
         }
+
+
 
         $newConfig = $config->withOverrides([
             'active' => true,
@@ -190,6 +201,7 @@ class InstallCommand extends Command
         }
 
         if ($shouldUpdateEnv) {
+            $output->writeln("<fg=gray>Save configuration</>");
             $envFile = $this->appPath . '/.env';
             touch($envFile);
             $envContents = file_get_contents($envFile);
