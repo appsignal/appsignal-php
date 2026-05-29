@@ -3,10 +3,10 @@
 namespace App;
 
 use Appsignal\Appsignal;
+use Appsignal\Severity;
 use Appsignal\Integrations\Monolog\Handler;
 use Monolog\Logger;
 use OpenTelemetry\API\Globals;
-use OpenTelemetry\API\Logs\Severity;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
 
@@ -76,7 +76,7 @@ class Router
                 'bool-tag' => true,
             ]),
             '/log' => $logger->info('My log'),
-            '/standalone-log' => Appsignal::log(body: 'Standalone log', severity: Severity::INFO, attributes: ['foo' => 'abc']),
+            '/standalone-log' => Appsignal::log(message: 'Standalone log', severity: Severity::INFO, attributes: ['foo' => 'abc']),
             '/log-with-attributes' => $logger->info('My log with attributes', ['foo' => 'bar']),
             '/set-gauge' => (function () {
                 Appsignal::setGauge('my_gauge', 12);
