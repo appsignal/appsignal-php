@@ -46,9 +46,9 @@ composer require appsignal/appsignal-php
 
 After that, run:
 ```bach
-vendor/bin/appsignal init
+vendor/bin/appsignal install
 ```
-This command will scaffold a config file in `config/appsignal.php` and install auto-instrumentations for your application framework (Laravel or Symfony).
+This command will scaffold a config file in `config/appsignal.php`, install auto-instrumentations for your application framework (Laravel or Symfony) and send example data to AppSignal.
 
 ## Basic usage
 
