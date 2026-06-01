@@ -25,10 +25,10 @@ class InstallCommandTest extends CommandTestCase
 
         $tester = new CommandTester($this->makeApplication($projectDir)->find('install'));
         $tester->execute([
-            '--push_api_key' => 'test-key',
-            '--collector_endpoint' => 'https://collector.test',
-            '--app_name' => 'Test App',
-            '--app_environment' => 'production',
+            '--push-api-key' => 'test-key',
+            '--collector-endpoint' => 'https://collector.test',
+            '--app-name' => 'Test App',
+            '--app-environment' => 'production',
             '--skip-demo' => true,
         ]);
 
@@ -44,10 +44,10 @@ class InstallCommandTest extends CommandTestCase
 
         $tester = new CommandTester($this->makeApplication($projectDir)->find('install'));
         $tester->execute([
-            '--push_api_key' => 'test-key',
-            '--collector_endpoint' => 'https://collector.test',
-            '--app_name' => 'Test App',
-            '--app_environment' => 'production',
+            '--push-api-key' => 'test-key',
+            '--collector-endpoint' => 'https://collector.test',
+            '--app-name' => 'Test App',
+            '--app-environment' => 'production',
             '--skip-demo' => true,
         ]);
 
@@ -62,10 +62,10 @@ class InstallCommandTest extends CommandTestCase
 
         $tester = new CommandTester($this->makeApplication($projectDir, $this->makeDemoStub())->find('install'));
         $tester->execute([
-            '--push_api_key' => 'test-key',
-            '--collector_endpoint' => 'https://collector.test',
-            '--app_name' => 'Test App',
-            '--app_environment' => 'production',
+            '--push-api-key' => 'test-key',
+            '--collector-endpoint' => 'https://collector.test',
+            '--app-name' => 'Test App',
+            '--app-environment' => 'production',
         ]);
 
         $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
@@ -82,10 +82,10 @@ class InstallCommandTest extends CommandTestCase
 
         $tester = new CommandTester($this->makeApplication($projectDir, $this->makeDemoStub(Command::FAILURE))->find('install'));
         $tester->execute([
-            '--push_api_key' => 'test-key',
-            '--collector_endpoint' => 'https://collector.test',
-            '--app_name' => 'Test App',
-            '--app_environment' => 'production',
+            '--push-api-key' => 'test-key',
+            '--collector-endpoint' => 'https://collector.test',
+            '--app-name' => 'Test App',
+            '--app-environment' => 'production',
         ]);
 
         $this->assertSame(Command::SUCCESS, $tester->getStatusCode());

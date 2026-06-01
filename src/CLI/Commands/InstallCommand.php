@@ -29,10 +29,10 @@ class InstallCommand extends Command
     {
         $this->setName('install')
             ->setDescription('Install AppSignal, scaffold config file and add auto-instrumentations')
-            ->addOption('push_api_key', null, InputOption::VALUE_REQUIRED, 'AppSignal Push API key')
-            ->addOption('collector_endpoint', null, InputOption::VALUE_REQUIRED, 'AppSignal collector endpoint')
-            ->addOption('app_name', null, InputOption::VALUE_REQUIRED, 'Your application name')
-            ->addOption('app_environment', null, InputOption::VALUE_REQUIRED, 'Your application environment')
+            ->addOption('push-api-key', null, InputOption::VALUE_REQUIRED, 'AppSignal Push API key')
+            ->addOption('collector-endpoint', null, InputOption::VALUE_REQUIRED, 'AppSignal collector endpoint')
+            ->addOption('app-name', null, InputOption::VALUE_REQUIRED, 'Your application name')
+            ->addOption('app-environment', null, InputOption::VALUE_REQUIRED, 'Your application environment')
             ->addOption('skip-demo', null, InputOption::VALUE_NONE, 'Skip running the demo after install');
     }
 
@@ -122,10 +122,10 @@ class InstallCommand extends Command
         /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
 
-        $pushApiKey = $input->getOption('push_api_key');
-        $collectorEndpoint = $input->getOption('collector_endpoint');
-        $appName = $input->getOption('app_name');
-        $appEnvironment = $input->getOption('app_environment');
+        $pushApiKey = $input->getOption('push-api-key');
+        $collectorEndpoint = $input->getOption('collector-endpoint');
+        $appName = $input->getOption('app-name');
+        $appEnvironment = $input->getOption('app-environment');
 
         if ($pushApiKey && $collectorEndpoint && $appName && $appEnvironment) {
             $output->writeln(" - Command arguments provided, skipping configuration");
