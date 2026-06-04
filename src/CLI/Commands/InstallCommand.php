@@ -109,7 +109,7 @@ class InstallCommand extends Command
                 mkdir($configTargetDir, 0o755, true);
             }
             copy($configTemplate, $configTarget);
-            $output->writeln(" ✔ Created AppSignal config file <fg=gray>.env</>");
+            $output->writeln(" ✔ Created AppSignal config file <fg=gray>config/appsignal.php</>");
             // reload config
             $config = $appsignal->loadConfig(forceReload: true);
         } else {

@@ -5,7 +5,9 @@ namespace Appsignal\CLI\Commands;
 use Appsignal\Appsignal;
 use Appsignal\CLI\LogCatcher;
 use Appsignal\CLI\Application;
+use Appsignal\Severity;
 use OpenTelemetry\API\LoggerHolder;
+use OpenTelemetry\API\Trace\SpanKind;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressIndicator;
 use Symfony\Component\Console\Input\InputInterface;
@@ -58,6 +60,22 @@ class DemoCommand extends Command
             return Command::FAILURE;
         }
 
+        $logProgress = new ProgressIndicator($output);
+        $logProgress->start('Sending a log ...');
+        Appsignal::log(
+            message: 'AppSignal test log.',
+            severity: Severity::INFO,
+            attributes: ['type' => 'appsignal_demo'],
+        );
+
+        if ($logCatcher->hasErrors()) {
+            $output->writeln(' <fg=red>Error:</> Failed to reach AppSignal. Check push_api_key and collector_endpoint configuration.');
+
+            return Command::FAILURE;
+        }
+        $logProgress->finish('Sent a log');
+
+
         $traceProgress = new ProgressIndicator($output);
         $traceProgress->start('Sending an example trace ...');
         Appsignal::instrument(name: 'GET /demo', closure: function () {
@@ -79,6 +97,7 @@ class DemoCommand extends Command
             );
         });
 
+        // @phpstan-ignore if.alwaysFalse
         if ($logCatcher->hasErrors()) {
             $output->writeln(' <fg=red>Error:</> Failed to reach AppSignal. Check push_api_key and collector_endpoint configuration.');
             return Command::FAILURE;
@@ -86,15 +105,11 @@ class DemoCommand extends Command
         $traceProgress->finish('Sent a trace');
 
         $errorProgress = new ProgressIndicator($output);
-        $errorProgress->start('Sending an exception');
-        Appsignal::instrument(name: 'GET /demo-with-error', closure: function () {
+        $errorProgress->start('Sending an exception ...');
+        Appsignal::instrument(name: 'GET /demo-with-error', attributes: ['http.response.status_code' => 500], spanKind: SpanKind::KIND_SERVER, closure: function () {
             Appsignal::addTags(['demo-trace' => true]);
             Appsignal::setAction('DemoController::showWithError');
-
-            Appsignal::instrument(name: 'span_with_error', closure: function () {
-                sleep(1);
-                Appsignal::setError(new DemoException('TestException: AppSignal demo exception'));
-            });
+            Appsignal::setError(new DemoException('TestException: AppSignal demo exception'));
         });
 
         // @phpstan-ignore if.alwaysFalse
