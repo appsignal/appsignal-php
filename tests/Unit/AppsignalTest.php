@@ -177,6 +177,7 @@ class AppsignalTest extends TestCase
 
         $environment = new class ($invalidConfig) implements Environment {
             public function __construct(private Config $config) {}
+            public function registerInstrumentation(): void {}
             public function applyPatches(): void {}
             public function getConfig(): Config
             {

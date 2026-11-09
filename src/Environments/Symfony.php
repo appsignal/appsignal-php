@@ -18,6 +18,8 @@ class Symfony implements Environment
 
     public function __construct(protected ?string $basePath = null) {}
 
+    public function registerInstrumentation(): void {}
+
     public function getConfig(): Config
     {
         if (class_exists(\Symfony\Component\Dotenv\Dotenv::class)) {

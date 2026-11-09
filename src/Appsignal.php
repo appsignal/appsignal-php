@@ -191,6 +191,8 @@ class Appsignal
             return;
         }
 
+        $environment->registerInstrumentation();
+
         $this->applyGlobalPatches($config);
 
         $environment->applyPatches();

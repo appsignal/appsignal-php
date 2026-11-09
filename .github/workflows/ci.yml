@@ -59,7 +59,7 @@ jobs:
       - name: Run tests
         run: docker run test-image composer ${{ matrix.test_cmd }}
   integration-test:
-    name: "PHP ${{ matrix.php }} - ${{ matrix.framework }}"
+    name: "PHP ${{ matrix.php }} - ${{ matrix.framework }}${{ matrix.dependency_set && format(' ({0})', matrix.dependency_set) || '' }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -71,6 +71,12 @@ jobs:
           - laravel
           - symfony
           - vanilla
+        dependency_set:
+          - ""
+        include:
+          - php: "8.4"
+            framework: laravel
+            dependency_set: auto-laravel-1.9
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
@@ -78,3 +84,4 @@ jobs:
         run: scripts/test-integration-${{ matrix.framework }}
         env:
           PHP_VERSION: "${{ matrix.php }}"
+          DEPENDENCY_SET: "${{ matrix.dependency_set }}"

@@ -15,6 +15,11 @@ class InstrumentationTest extends TestCase
             'http.route' => '/',
             'http.response.status_code' => 200,
         ]);
+
+        $this->assertStringStartsWith(
+            'io.opentelemetry.contrib.php.laravel',
+            $this->getLastSpan()->getInstrumentationScope()->getName(),
+        );
     }
 
     public function test_post_span(): void

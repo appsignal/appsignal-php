@@ -41,6 +41,8 @@ class FakeEnvironment implements Environment
      */
     public function __construct(protected array $patches = []) {}
 
+    public function registerInstrumentation(): void {}
+
     public function getConfig(): Config
     {
         return new Config();
