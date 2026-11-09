@@ -18,8 +18,13 @@ COPY config-stubs/ /package/config-stubs/
 
 WORKDIR /app
 
+# Dependency sets are alternative composer.json files (composer.<set>.json),
+# selected through Composer's COMPOSER variable
+ARG COMPOSER_FILE=composer.json
+ENV COMPOSER=${COMPOSER_FILE}
+
 # Copy composer files first to cache dependency installation
-COPY tests/Integration/laravel/composer.json .
+COPY tests/Integration/laravel/composer*.json .
 
 # Install dependencies (no-scripts: artisan isn't available yet)
 RUN composer install --no-interaction --prefer-dist --no-scripts

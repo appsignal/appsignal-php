@@ -3,10 +3,13 @@
 set -eu
 
 PHP_VERSION="${PHP_VERSION:-8.4}"
-IMAGE_NAME="appsignal-php-integration-laravel-${PHP_VERSION}"
+DEPENDENCY_SET="${DEPENDENCY_SET:-}"
+COMPOSER_FILE="composer${DEPENDENCY_SET:+.${DEPENDENCY_SET}}.json"
+IMAGE_NAME="appsignal-php-integration-laravel-${PHP_VERSION}${DEPENDENCY_SET:+-${DEPENDENCY_SET}}"
 
 docker build \
   --build-arg PHP_VERSION="$PHP_VERSION" \
+  --build-arg COMPOSER_FILE="$COMPOSER_FILE" \
   -f tests/Integration/laravel/Dockerfile \
   -t "$IMAGE_NAME" .
 
