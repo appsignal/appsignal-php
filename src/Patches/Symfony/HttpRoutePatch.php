@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Appsignal\Patches\Symfony;
 
+use Composer\InstalledVersions;
 use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\Context\Context;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,6 +37,7 @@ use function OpenTelemetry\Instrumentation\hook;
 final class HttpRoutePatch
 {
     private const ROUTE_TEMPLATE_ATTR = '_appsignal_route_template';
+    private const AUTO_SYMFONY_PACKAGE = 'open-telemetry/opentelemetry-auto-symfony';
 
     public function __invoke(): void
     {
@@ -43,8 +45,27 @@ final class HttpRoutePatch
             return;
         }
 
+        if (!$this->autoSymfonyInstalled()) {
+            return;
+        }
+
         $this->registerRouteTemplateHooks();
-        $this->registerSubRequestScopeFixHook();
+
+        if ($this->needsSubRequestScopeFix()) {
+            $this->registerSubRequestScopeFixHook();
+        }
+    }
+
+    private function autoSymfonyInstalled(): bool
+    {
+        return InstalledVersions::isInstalled(self::AUTO_SYMFONY_PACKAGE);
+    }
+
+    private function needsSubRequestScopeFix(): bool
+    {
+        $version = InstalledVersions::getVersion(self::AUTO_SYMFONY_PACKAGE);
+
+        return $version !== null && version_compare($version, '1.6.0', '<');
     }
 
     /**
@@ -99,6 +120,8 @@ final class HttpRoutePatch
      * This hook runs after the auto-symfony one (registered later) and
      * cleans up sub-request scopes so the main request scope is on top
      * when terminate fires.
+     *
+     * This was fixed upstread in v1.6.0.
      */
     private function registerSubRequestScopeFixHook(): void
     {
